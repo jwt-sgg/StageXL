@@ -28,7 +28,8 @@ class Bitmap extends DisplayObject {
     _bitmapData = value;
   }
 
-  Bitmap([BitmapData bitmapData]) : _bitmapData = bitmapData;
+  Bitmap.empty();
+  Bitmap(BitmapData bitmapData) : _bitmapData = bitmapData;
 
   //---------------------------------------------------------------------------
 
