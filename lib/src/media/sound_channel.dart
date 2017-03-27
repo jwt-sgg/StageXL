@@ -18,6 +18,9 @@ abstract class SoundChannel extends EventDispatcher {
   bool get paused;
   set paused(bool value);
 
+  num get playbackRate;
+  set playbackRate(num value);
+
   SoundTransform get soundTransform;
   set soundTransform(SoundTransform value);
 

@@ -15,10 +15,12 @@ class WebAudioApiSoundChannel extends SoundChannel {
   num _duration = 0.0;
   num _position = 0.0;
   num _timeOffset = 0.0;
+  num _playbackRate = 1.0;
 
   WebAudioApiSoundChannel(WebAudioApiSound webAudioApiSound,
                           num startTime, num duration, bool loop,
-                          SoundTransform soundTransform) {
+                          SoundTransform soundTransform,
+                          [num playbackRate = 1.0]) {
 
     if (soundTransform == null) soundTransform = new SoundTransform();
 
@@ -27,6 +29,7 @@ class WebAudioApiSoundChannel extends SoundChannel {
     _duration = duration.toDouble();
     _soundTransform = soundTransform;
     _loop = loop;
+    _playbackRate = playbackRate;
 
     _webAudioApiMixer = new WebAudioApiMixer(SoundMixer._webAudioApiMixer.inputNode);
     _webAudioApiMixer.applySoundTransform(_soundTransform);
@@ -85,6 +88,7 @@ class WebAudioApiSoundChannel extends SoundChannel {
       _sourceNode.loopEnd = _startTime + _duration;
       _sourceNode.connectNode(_webAudioApiMixer.inputNode);
       _sourceNode.start(0, _startTime + _position);
+      _sourceNode.playbackRate = _playbackRate;
       _timeOffset = WebAudioApiMixer.audioContext.currentTime - _position;
     } else {
       _paused = false;
@@ -93,8 +97,22 @@ class WebAudioApiSoundChannel extends SoundChannel {
       _sourceNode.loop = false;
       _sourceNode.connectNode(_webAudioApiMixer.inputNode);
       _sourceNode.start(0, _startTime + _position, _duration - _position);
+      _sourceNode.playbackRate = _playbackRate;
       _timeOffset = WebAudioApiMixer.audioContext.currentTime - _position;
       _startCompleteTimer(_duration - _position);
+    }
+  }
+
+  @override
+  num get playbackRate => _playbackRate;
+  @override
+  set playbackRate(num value)
+  {
+    if ( value is num && value > 0.0 ) {
+      _playbackRate = value;
+      if ( _sourceNode != null ) {
+        _sourceNode.playbackRate = _playbackRate;
+      }
     }
   }
 

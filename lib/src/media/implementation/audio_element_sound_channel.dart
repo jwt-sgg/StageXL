@@ -14,11 +14,13 @@ class AudioElementSoundChannel extends SoundChannel {
   num _startTime = 0.0;
   num _duration = 0.0;
   num _position = 0.0;
+  num _playbackRate = 1.0;
 
   AudioElementSoundChannel(
       AudioElementSound audioElementSound,
       num startTime, num duration, bool loop,
-      SoundTransform soundTransform) {
+      SoundTransform soundTransform,
+      [num playbackRate = 1.0]) {
 
     if (soundTransform == null) soundTransform = new SoundTransform();
 
@@ -27,6 +29,7 @@ class AudioElementSoundChannel extends SoundChannel {
     _duration = duration.toDouble();
     _soundTransform = soundTransform;
     _loop = loop;
+    _playbackRate = playbackRate;
 
     audioElementSound._requestAudioElement(this).then(_onAudioElement);
   }
@@ -75,7 +78,21 @@ class AudioElementSoundChannel extends SoundChannel {
     } else {
       _paused = false;
       _audioElement.play();
+      _audioElement.playbackRate = _playbackRate;
       _startCompleteTimer(_duration - _position);
+    }
+  }
+
+  @override
+  num get playbackRate => _playbackRate;
+  @override
+  set playbackRate(num value)
+  {
+    if ( value is num && value > 0.0 ) {
+      _playbackRate = value;
+      if ( _audioElement != null ){
+        _audioElement.playbackRate = _playbackRate;
+      }
     }
   }
 
