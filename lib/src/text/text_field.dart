@@ -818,9 +818,9 @@ class TextField extends InteractiveObject {
 
     var mouseX = mouseEvent.localX.toDouble();
     var mouseY = mouseEvent.localY.toDouble();
-    if ( _scrollRect != null ) {
-      mouseX += _scrollRect.left;
-      mouseY += _scrollRect.top;
+    if ( this.isScrollRectSet ) {
+      mouseX += scrollX;
+      mouseY += scrollY;
     }
     var canvasContext = _dummyCanvasContext;
 
