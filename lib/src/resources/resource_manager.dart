@@ -8,13 +8,16 @@ class ResourceManager {
   final _progressEvent = new StreamController<num>.broadcast();
   Stream<num> get onProgress => _progressEvent.stream;
 
+  bool _ignoreErrors;
+  ResourceManager([this._ignoreErrors = false]);
+
   //----------------------------------------------------------------------------
 
   Future<ResourceManager> load() async {
     var futures = this.pendingResources.map((r) => r.complete);
     await Future.wait(futures);
     var errors = this.failedResources.length;
-    if (errors > 0) {
+    if (errors > 0 && !_ignoreErrors) {
       throw new StateError("Failed to load $errors resource(s).");
     } else {
       return this;
@@ -53,6 +56,18 @@ class ResourceManager {
     return _containsResource("BitmapData", name);
   }
 
+  bool bitmapDataLoaded(String name) {
+    return _resourceLoaded("BitmapData", name);
+  }
+
+  bool bitmapDataHasError(String name) {
+    return _resourceHasError("BitmapData", name);
+  }
+
+  Future bitmapDataComplete(String name) {
+    return _resourceComplete("BitmapData", name);
+  }
+
   void addBitmapData(String name, String url, [BitmapDataLoadOptions options]) {
     var loader = BitmapData.load(url, options);
     _addResource("BitmapData", name, url, loader);
@@ -76,6 +91,18 @@ class ResourceManager {
 
   bool containsTextureAtlas(String name) {
     return _containsResource("TextureAtlas", name);
+  }
+
+  bool textureAtlasLoaded(String name) {
+    return _resourceLoaded("TextureAtlas", name);
+  }
+
+  bool textureAtlasHasError(String name) {
+    return _resourceHasError("TextureAtlas", name);
+  }
+
+  Future textureAtlasComplete(String name) {
+    return _resourceComplete("TextureAtlas", name);
   }
 
   void addTextureAtlas(String name, String url, [
@@ -106,6 +133,18 @@ class ResourceManager {
     return _containsResource("Video", name);
   }
 
+  bool videoLoaded(String name) {
+    return _resourceLoaded("Video", name);
+  }
+
+  bool videoHasError(String name) {
+    return _resourceHasError("Video", name);
+  }
+
+  Future videoComplete(String name) {
+    return _resourceComplete("Video", name);
+  }
+
   void addVideo(String name, String url, [VideoLoadOptions options]) {
     var loader = Video.load(url, options);
     _addResource("Video", name, url, loader);
@@ -123,6 +162,18 @@ class ResourceManager {
 
   bool containsSound(String name) {
     return _containsResource("Sound", name);
+  }
+
+  bool soundLoaded(String name) {
+    return _resourceLoaded("Sound", name);
+  }
+
+  bool soundHasError(String name) {
+    return _resourceHasError("Sound", name);
+  }
+
+  Future soundComplete(String name) {
+    return _resourceComplete("Sound", name);
   }
 
   void addSound(String name, String url, [SoundLoadOptions options]) {
@@ -144,6 +195,18 @@ class ResourceManager {
     return _containsResource("SoundSprite", name);
   }
 
+  bool soundSpriteLoaded(String name) {
+    return _resourceLoaded("SoundSprite", name);
+  }
+
+  bool soundSpriteHasError(String name) {
+    return _resourceHasError("SoundSprite", name);
+  }
+
+  Future soundSpriteComplete(String name) {
+    return _resourceComplete("SoundSprite", name);
+  }
+
   void addSoundSprite(String name, String url, [SoundLoadOptions options]) {
     var loader = SoundSprite.load(url, options);
     _addResource("SoundSprite", name, url, loader);
@@ -163,6 +226,18 @@ class ResourceManager {
     return _containsResource("Text", name);
   }
 
+  bool textLoaded(String name) {
+    return _resourceLoaded("Text", name);
+  }
+
+  bool textHasError(String name) {
+    return _resourceHasError("Text", name);
+  }
+
+  Future textComplete(String name) {
+    return _resourceComplete("Text", name);
+  }
+
   void addText(String name, String text) {
     _addResource("Text", name, "", new Future.value(text));
   }
@@ -179,6 +254,18 @@ class ResourceManager {
 
   bool containsTextFile(String name) {
     return _containsResource("TextFile", name);
+  }
+
+  bool textFileLoaded(String name) {
+    return _resourceLoaded("TextFile", name);
+  }
+
+  bool textFileHasError(String name) {
+    return _resourceHasError("TextFile", name);
+  }
+
+  Future textFileComplete(String name) {
+    return _resourceComplete("TextFile", name);
   }
 
   void addTextFile(String name, String url) {
@@ -202,6 +289,18 @@ class ResourceManager {
     return _containsResource("CustomObject", name);
   }
 
+  bool customObjectLoaded(String name) {
+    return _resourceLoaded("CustomObject", name);
+  }
+
+  bool customObjectHasError(String name) {
+    return _resourceHasError("CustomObject", name);
+  }
+
+  Future customObjectComplete(String name) {
+    return _resourceComplete("CustomObject", name);
+  }
+
   void addCustomObject(String name, Future loader) {
     _addResource("CustomObject", name, "", loader);
   }
@@ -221,39 +320,88 @@ class ResourceManager {
     return _resourceMap.containsKey(key);
   }
 
+  bool _resourceLoaded(String kind, String name) {
+    var key = "$kind.$name";
+    var resource = _resourceMap[key];
+    if (resource == null) {
+      if (_ignoreErrors){
+        return false;
+      }
+      throw new StateError("Resource '$name' does not exist.");
+    } else {
+      return (resource.value != null);
+    }
+  }
+
+  bool _resourceHasError(String kind, String name) {
+    var key = "$kind.$name";
+    var resource = _resourceMap[key];
+    if (resource == null) {
+      if (_ignoreErrors){
+        return false;
+      }
+      throw new StateError("Resource '$name' does not exist.");
+    } else {
+      return (resource.error != null);
+    }
+  }
+
+  Future _resourceComplete(String kind, String name) {
+    var key = "$kind.$name";
+    var resource = _resourceMap[key];
+    if (resource == null) {
+      if (_ignoreErrors){
+        return null;
+      }
+      throw new StateError("Resource '$name' does not exist.");
+    } else {
+      return resource.complete;
+    }
+  }
+
+
   ResourceManagerResource _removeResource(String kind, String name) {
     var key = "$kind.$name";
     return _resourceMap.remove(key);
   }
 
   void _addResource(String kind, String name, String url, Future loader) {
-
     var key = "$kind.$name";
-    var resource = new ResourceManagerResource(kind, name, url, loader);
 
     if (_resourceMap.containsKey(key)) {
-      throw new StateError("ResourceManager already contains a resource called '$name'");
+      if (!_ignoreErrors){
+        throw new StateError("ResourceManager already contains a resource called '$name'");
+      }
     } else {
+      var resource = new ResourceManagerResource(kind, name, url, loader);
       _resourceMap[key] = resource;
+      resource.complete.then((_) {
+        var finished = this.finishedResources.length;
+        var progress = finished / _resourceMap.length;
+        _progressEvent.add(progress);
+      });
     }
-
-    resource.complete.then((_) {
-      var finished = this.finishedResources.length;
-      var progress = finished / _resourceMap.length;
-      _progressEvent.add(progress);
-    });
   }
 
   dynamic _getResourceValue(String kind, String name) {
     var key = "$kind.$name";
     var resource = _resourceMap[key];
     if (resource == null) {
+      if (_ignoreErrors){
+        return null;
+      }
       throw new StateError("Resource '$name' does not exist.");
     } else if (resource.value != null) {
       return resource.value;
     } else if (resource.error != null) {
+      if (_ignoreErrors){
+        return null;
+      }
       throw resource.error;
     } else {
+      if (_ignoreErrors){
+        return null;
+      }
       throw new StateError("Resource '$name' has not finished loading yet.");
     }
   }
