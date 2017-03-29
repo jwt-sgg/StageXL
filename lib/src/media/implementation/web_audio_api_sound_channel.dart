@@ -88,7 +88,7 @@ class WebAudioApiSoundChannel extends SoundChannel {
       _sourceNode.loopEnd = _startTime + _duration;
       _sourceNode.connectNode(_webAudioApiMixer.inputNode);
       _sourceNode.start(0, _startTime + _position);
-      _sourceNode.playbackRate = _playbackRate;
+      _sourceNode.playbackRate.value = _playbackRate;
       _timeOffset = WebAudioApiMixer.audioContext.currentTime - _position;
     } else {
       _paused = false;
@@ -97,7 +97,7 @@ class WebAudioApiSoundChannel extends SoundChannel {
       _sourceNode.loop = false;
       _sourceNode.connectNode(_webAudioApiMixer.inputNode);
       _sourceNode.start(0, _startTime + _position, _duration - _position);
-      _sourceNode.playbackRate = _playbackRate;
+      _sourceNode.playbackRate.value = _playbackRate;
       _timeOffset = WebAudioApiMixer.audioContext.currentTime - _position;
       _startCompleteTimer(_duration - _position);
     }
