@@ -176,6 +176,14 @@ abstract class DisplayObject
     _transformationMatrixRefresh = true;
   }
 
+  /// a property that children won't override to always allow setting
+  /// the position directly (used by layouts)
+  num get x_ => _x;
+  set x_(num value) {
+    if (value is num) _x = value;
+    _transformationMatrixRefresh = true;
+  }
+
   /// The y-coordinate of this display object relative to the
   /// local coordinates of the parent [DisplayObjectContainer].
   ///
@@ -188,6 +196,14 @@ abstract class DisplayObject
 
   @override
   set y(num value) {
+    if (value is num) _y = value;
+    _transformationMatrixRefresh = true;
+  }
+
+  /// a property that children won't override to always allow setting
+  /// the position directly (used by layouts)
+  num get y_ => _y;
+  set y_(num value) {
     if (value is num) _y = value;
     _transformationMatrixRefresh = true;
   }
