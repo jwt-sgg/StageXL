@@ -40,6 +40,14 @@ abstract class InteractiveObject extends DisplayObject {
   /// Defines the mouse cursor that is displayed on this interactive object.
   String mouseCursor = MouseCursor.AUTO;
 
+  /// Specifies whether this object can receive focus on mouse down.
+  ///
+  /// If this object can receive focus it will automatically be set as the focus
+  /// for text events when a mouseDown event is sent to the object. If the
+  /// object is in focus and a mouse down event occurs outside the object, the
+  /// object will lose focus
+  bool canAutoReceiveFocus = false;
+
   /// Specifies whether this object is in the tab order.
   ///
   /// If this object is in the tab order, the value is true; otherwise, the

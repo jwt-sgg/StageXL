@@ -662,6 +662,14 @@ class Stage extends DisplayObjectContainer {
         mouseButton.clickCount = 0;
       }
 
+      if ( target != null && focus != null &&
+          target != focus && focus.canAutoReceiveFocus ) {
+        focus = null;
+      }
+      if ( target is InteractiveObject && target.canAutoReceiveFocus ) {
+        focus = target;
+      }
+
       mouseButton.buttonDown = true;
       mouseButton.target = target;
       mouseButton.clickTime = time;
