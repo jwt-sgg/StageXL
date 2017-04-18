@@ -100,6 +100,22 @@ String ensureString(Object value) {
 
 //-----------------------------------------------------------------------------
 
+int nextPowerOfTwo( num size )
+{
+  int start = size.ceil();
+  if (start < 0) return 0;
+
+  --start;
+  start = start | (start >> 1);
+  start = start | (start >> 2);
+  start = start | (start >> 4);
+  start = start | (start >> 8);
+  start = start | (start >> 16);
+  return start+1;
+}
+
+//-----------------------------------------------------------------------------
+
 bool similar(num a, num b, [num epsilon = 0.0001]) {
   return (a - epsilon < b) && (a + epsilon > b);
 }

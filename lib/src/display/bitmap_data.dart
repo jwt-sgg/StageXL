@@ -39,6 +39,12 @@ class BitmapData implements BitmapDrawable {
     return new BitmapData.fromRenderTextureQuad(renderTextureQuad);
   }
 
+  factory BitmapData.fromCanvasElement(CanvasElement canvasElement, [num pixelRatio = 1.0]) {
+    var renderTexture = new RenderTexture.fromCanvasElement(canvasElement);
+    var renderTextureQuad = renderTexture.quad.withPixelRatio(pixelRatio);
+    return new BitmapData.fromRenderTextureQuad(renderTextureQuad);
+  }
+
   factory BitmapData.fromImageElement(ImageElement imageElement, [num pixelRatio = 1.0]) {
     var renderTexture = new RenderTexture.fromImageElement(imageElement);
     var renderTextureQuad = renderTexture.quad.withPixelRatio(pixelRatio);
@@ -60,7 +66,7 @@ class BitmapData implements BitmapDrawable {
 
   /// Loads a BitmapData from the given url.
 
-  static Future<BitmapData> load(String url, [BitmapDataLoadOptions bitmapDataLoadOptions]) async {
+  static Future<BitmapData> load(String url, [bool forcePowerOfTwo = false, BitmapDataLoadOptions bitmapDataLoadOptions]) async {
 
     if (bitmapDataLoadOptions == null) {
       bitmapDataLoadOptions = BitmapData.defaultLoadOptions;
@@ -84,6 +90,17 @@ class BitmapData implements BitmapDrawable {
 
     var imageLoader = new ImageLoader(url, webpAvailable, corsEnabled);
     var image = await imageLoader.done;
+    if ( forcePowerOfTwo )
+    {
+      int wpow2 = nextPowerOfTwo( image.width );
+      int hpow2 = nextPowerOfTwo( image.height );
+      if ( wpow2 != image.width || hpow2 != image.height )
+      {
+        CanvasElement canvas = new CanvasElement(width: wpow2, height: hpow2);
+        canvas.context2D.drawImageScaled(image, 0, 0, wpow2, hpow2);
+        return new BitmapData.fromCanvasElement(canvas, pixelRatio);
+      }
+    }
     return new BitmapData.fromImageElement(image, pixelRatio);
   }
 
