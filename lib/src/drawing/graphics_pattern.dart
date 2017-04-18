@@ -112,6 +112,7 @@ class GraphicsPattern {
   //----------------------------------------------------------------------------
 
   void disposeCachedRenderObjects(bool patternTextureChanged) {
+    if ( _renderTextureQuad == null ) return;
     var cacheKey = new _CanvasPatternKey(_renderTextureQuad, _type);
     _canvasPatternCache.releaseObject(cacheKey);
     _canvasPattern = null;
@@ -124,6 +125,8 @@ class GraphicsPattern {
   }
 
   CanvasPattern getCanvasPattern(CanvasRenderingContext2D context) {
+
+    if ( _renderTextureQuad == null ) return null;
 
     // try to get the canvasPattern from the cache
     if (_canvasPattern == null) {
