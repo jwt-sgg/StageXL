@@ -2,6 +2,8 @@ part of stagexl.text;
 
 class TextField extends InteractiveObject {
 
+  static const String TEXT_CHANGED = "TEXT_CHANGED";
+
   String _text = "";
   TextFormat _defaultTextFormat;
 
@@ -123,6 +125,7 @@ class TextField extends InteractiveObject {
     _text = value;
     _caretIndex = _text.length;
     _refreshPending |= 3;
+    dispatchEvent( new Event( TEXT_CHANGED ) );
   }
 
   set textColor(int value) {
@@ -711,12 +714,15 @@ class TextField extends InteractiveObject {
       var caretLine = _caretLine;
       var caretIndexNew = -1;
 
+      bool textChanged = false;
+
       switch(keyboardEvent.keyCode) {
 
         case html.KeyCode.BACKSPACE:
           keyboardEvent.preventDefault();
           if (caretIndex > 0) {
             _text = text.substring(0, caretIndex - 1) + text.substring(caretIndex);
+            textChanged = true;
             caretIndexNew = caretIndex - 1;
           }
           break;
@@ -775,6 +781,7 @@ class TextField extends InteractiveObject {
           keyboardEvent.preventDefault();
           if (caretIndex < textLength) {
             _text = text.substring(0, caretIndex) + text.substring(caretIndex + 1);
+            textChanged = true;
             caretIndexNew = caretIndex;
           }
           break;
@@ -784,6 +791,11 @@ class TextField extends InteractiveObject {
         _caretIndex = caretIndexNew;
         _caretTime = 0.0;
         _refreshPending |= 3;
+      }
+
+      if( textChanged )
+      {
+        dispatchEvent( new Event( TEXT_CHANGED ) );
       }
     }
   }
@@ -809,6 +821,7 @@ class TextField extends InteractiveObject {
       _caretIndex = _caretIndex + newText.length;
       _caretTime = 0.0;
       _refreshPending |= 3;
+      dispatchEvent( new Event( TEXT_CHANGED ) );
     }
   }
 
