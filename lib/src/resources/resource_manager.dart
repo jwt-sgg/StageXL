@@ -69,7 +69,7 @@ class ResourceManager {
   }
 
   void addBitmapData(String name, String url, [BitmapDataLoadOptions options]) {
-    var loader = BitmapData.load(url, options);
+    var loader = BitmapData.load(url, false, options);
     _addResource("BitmapData", name, url, loader);
   }
 
