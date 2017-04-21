@@ -1,5 +1,20 @@
 part of stagexl.engine;
 
+BlendMode blendModeByName( String name )
+{
+  switch(name)
+  {
+    case "normal":    return BlendMode.NORMAL;
+    case "add":       return BlendMode.ADD;
+    case "multiply":  return BlendMode.MULTIPLY;
+    case "screen":    return BlendMode.SCREEN;
+    case "erase":     return BlendMode.ERASE;
+    case "below":     return BlendMode.BELOW;
+    case "above":     return BlendMode.ABOVE;
+    case "none":      return BlendMode.NONE;
+  }
+}
+
 /// A class that provides constant values for visual blend mode effects.
 class BlendMode {
 
