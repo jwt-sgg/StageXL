@@ -38,6 +38,12 @@ enum StageAlign {
   BOTTOM_RIGHT
 }
 
+
+enum StageDisplayState {
+  NORMAL,
+  FULL_SCREEN
+}
+
 /// The Stage is the drawing area where all display objects are rendered to.
 /// Place a Canvas element to your HTML and use the Stage to wrap all the
 /// rendering functions to this Canvas element.
@@ -52,6 +58,9 @@ enum StageAlign {
 ///     var stage = new Stage(canvas, width: 800, height: 600);
 
 class Stage extends DisplayObjectContainer {
+
+  /// event type for change in displayState between NORMAL and FULL_SCREEN
+  static const String       FULL_SCREEN = "FULL_SCREEN";
 
   static StageOptions defaultOptions = new StageOptions();
 
@@ -922,5 +931,107 @@ class Stage extends DisplayObjectContainer {
       if (keyboardEvent.isDefaultPrevented) event.preventDefault();
     }
   }
+
+//----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
+
+  bool get allowFullScreen
+  {
+    js.JsObject document = new js.JsObject.fromBrowserObject( html.window.document );
+    if( ( document.hasProperty('fullscreenEnabled') && document['fullscreenEnabled'] )  ||
+        ( document.hasProperty('webkitFullscreenEnabled') && document['webkitFullscreenEnabled'] ) ||
+        ( document.hasProperty('mozFullScreenEnabled') && document['mozFullScreenEnabled'] ) ||
+        ( document.hasProperty('msFullscreenEnabled') && document['msFullscreenEnabled'] ))
+    {
+      return true;
+    }
+    return false;
+  }
+
+//----------------------------------------------------------------------------
+
+  StageDisplayState get displayState
+  {
+    js.JsObject document = new js.JsObject.fromBrowserObject( html.window.document );
+    if( ( document['fullscreenElement'] != null ) ||
+        ( document['webkitFullscreenElement'] != null ) ||
+        ( document['mozFullScreenElement'] != null ) ||
+        ( document['msFullscreenElement'] != null ))
+    {
+      return StageDisplayState.FULL_SCREEN;
+    }
+    return StageDisplayState.NORMAL;
+  }
+
+//----------------------------------------------------------------------------
+
+  set displayState( StageDisplayState value ) {
+    if ( ( value == displayState ) || ( _canvas == null ) ) return;
+
+    bool  changed = false;
+    if ( value == StageDisplayState.FULL_SCREEN )
+    {
+      js.JsObject dartJSElement = new js.JsObject.fromBrowserObject( _canvas );
+
+      if ( dartJSElement['requestFullscreen'] != null )
+      {
+        dartJSElement.callMethod('requestFullscreen');
+        changed = true;
+      }
+      else
+      if ( dartJSElement['webkitRequestFullscreen'] != null )
+      {
+        dartJSElement.callMethod('webkitRequestFullscreen');//,[Element.ALLOW_KEYBOARD_INPUT]);
+        changed = true;
+      }
+      else
+      if ( dartJSElement['mozRequestFullScreen'] != null )
+      {
+        dartJSElement.callMethod('mozRequestFullScreen');
+        changed = true;
+      }
+      else
+      if ( dartJSElement['msRequestFullscreen'] != null )
+      {
+        dartJSElement.callMethod('msRequestFullscreen');
+        changed = true;
+      }
+    }
+    else
+    {
+      js.JsObject document = new js.JsObject.fromBrowserObject( html.window.document );
+
+      if ( document['exitFullscreen'] != null )
+      {
+        document.callMethod('exitFullscreen');
+        changed = true;
+      }
+      else
+      if ( document['webkitExitFullscreen'] != null )
+      {
+        document.callMethod('webkitExitFullscreen');
+        changed = true;
+      }
+      else
+      if ( document['mozCancelFullScreen'] != null )
+      {
+        document.callMethod('mozCancelFullScreen');
+        changed = true;
+      }
+      else
+      if ( document['msExitFullscreen'] != null )
+      {
+        document.callMethod('msExitFullscreen');
+        changed = true;
+      }
+    }
+
+    if ( changed )
+    {
+      dispatchEvent( new Event(FULL_SCREEN) );
+    }
+  }
+
+//----------------------------------------------------------------------------
 
 }
