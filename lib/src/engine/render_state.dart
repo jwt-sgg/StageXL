@@ -118,7 +118,218 @@ class RenderState {
   //---------------------------------------------------------------------------
 
   void renderObject(RenderObject renderObject) {
+    if ( renderObject.isScrollRectSet && renderObject.scrollRectRenderTextureQuad == null )
+    {
+      if ( renderObject.mask == null )
+      {
+        renderObjectScrollRect( renderObject );
+      }
+      else
+      {
+        renderObjectMaskedScrollRect( renderObject );
+      }
+    }
+    else
+    {
+      if ( renderObject.mask == null )
+      {
+        renderObjectNormal( renderObject );
+      }
+      else
+      {
+        renderObjectMasked( renderObject );
+      }
+    }
+  }
 
+  //---------------------------------------------------------------------------
+
+  void renderObjectNormal(RenderObject renderObject) {
+    var matrix = renderObject.transformationMatrix;
+    var blendMode = renderObject.blendMode;
+    var alpha = renderObject.alpha;
+    var filters = renderObject.filters;
+    var cache = renderObject.cache;
+
+    var cs1 = _currentContextState;
+    var cs2 = _currentContextState.nextContextState;
+
+    cs2.matrix.copyFromAndConcat(matrix, cs1.matrix);
+    cs2.blendMode = (blendMode is BlendMode) ? blendMode : cs1.blendMode;
+    cs2.alpha = alpha * cs1.alpha;
+
+    //-----------
+
+    if (renderObject is RenderObject3D && renderContext is RenderContextWebGL) {
+      RenderObject3D renderObject3D = renderObject;
+      var renderContextWebGL = renderContext as RenderContextWebGL;
+      cs1.matrix3D.copyFrom(renderContextWebGL.activeProjectionMatrix);
+      cs2.matrix3D.copyFrom2DAndConcat(cs2.matrix, cs1.matrix3D);
+      cs2.matrix3D.prepend(renderObject3D.projectionMatrix3D);
+      cs2.matrix3D.prependInverse2D(cs2.matrix);
+      renderContextWebGL.activateProjectionMatrix(cs2.matrix3D);
+    }
+
+    _currentContextState = cs2;
+
+    //-----------
+
+    if (cache != null) {
+      this.renderTextureQuad(cache);
+    } else if (filters.length > 0) {
+      renderObject.renderFiltered(this);
+    } else {
+      renderObject.render(this);
+    }
+
+    //-----------
+
+    _currentContextState = cs1;
+
+    if (renderObject is RenderObject3D && renderContext is RenderContextWebGL) {
+      var renderContextWebGL = renderContext as RenderContextWebGL;
+      renderContextWebGL.activateProjectionMatrix(cs1.matrix3D);
+    }
+  }
+
+  //---------------------------------------------------------------------------
+
+  void renderObjectMasked(RenderObject renderObject) {
+    var matrix = renderObject.transformationMatrix;
+    var blendMode = renderObject.blendMode;
+    var alpha = renderObject.alpha;
+    var filters = renderObject.filters;
+    var cache = renderObject.cache;
+    var mask = renderObject.mask;
+
+    var cs1 = _currentContextState;
+    var cs2 = _currentContextState.nextContextState;
+    var maskBefore = mask != null && mask.relativeToParent == true;
+    var maskAfter = mask != null && mask.relativeToParent == false;
+
+    cs2.matrix.copyFromAndConcat(matrix, cs1.matrix);
+    cs2.blendMode = (blendMode is BlendMode) ? blendMode : cs1.blendMode;
+    cs2.alpha = alpha * cs1.alpha;
+
+    //-----------
+
+    if (maskBefore) renderContext.beginRenderMask(this, mask);
+
+    if (renderObject is RenderObject3D && renderContext is RenderContextWebGL) {
+      RenderObject3D renderObject3D = renderObject;
+      var renderContextWebGL = renderContext as RenderContextWebGL;
+      cs1.matrix3D.copyFrom(renderContextWebGL.activeProjectionMatrix);
+      cs2.matrix3D.copyFrom2DAndConcat(cs2.matrix, cs1.matrix3D);
+      cs2.matrix3D.prepend(renderObject3D.projectionMatrix3D);
+      cs2.matrix3D.prependInverse2D(cs2.matrix);
+      renderContextWebGL.activateProjectionMatrix(cs2.matrix3D);
+    }
+
+    _currentContextState = cs2;
+
+    //-----------
+
+    if (maskAfter) renderContext.beginRenderMask(this, mask);
+
+    if (cache != null) {
+      this.renderTextureQuad(cache);
+    } else if (filters.length > 0) {
+      renderObject.renderFiltered(this);
+    } else {
+      renderObject.render(this);
+    }
+
+    if (maskAfter) renderContext.endRenderMask(this, mask);
+
+    //-----------
+
+    _currentContextState = cs1;
+
+    if (renderObject is RenderObject3D && renderContext is RenderContextWebGL) {
+      var renderContextWebGL = renderContext as RenderContextWebGL;
+      renderContextWebGL.activateProjectionMatrix(cs1.matrix3D);
+    }
+
+    if (maskBefore) renderContext.endRenderMask(this, mask);
+  }
+
+  //---------------------------------------------------------------------------
+
+  void renderObjectScrollRect(RenderObject renderObject) {
+    var matrix = renderObject.transformationMatrix;
+    var blendMode = renderObject.blendMode;
+    var alpha = renderObject.alpha;
+    var filters = renderObject.filters;
+    var cache = renderObject.cache;
+    var scrollMask = renderObject.scrollMask;
+    var scrollRect = renderObject.scrollRect;
+
+    var cs1 = _currentContextState;
+    var cs2 = _currentContextState.nextContextState;
+    var scrollMaskBefore = scrollMask != null && scrollMask.relativeToParent == true;
+    var scrollMaskAfter = scrollMask != null && scrollMask.relativeToParent == false;
+
+    cs2.matrix.copyFromAndConcat(matrix, cs1.matrix);
+    cs2.blendMode = (blendMode is BlendMode) ? blendMode : cs1.blendMode;
+    cs2.alpha = alpha * cs1.alpha;
+
+    //-----------
+
+    if (scrollMaskBefore) renderContext.beginRenderMask(this, scrollMask);
+
+    if (renderObject is RenderObject3D && renderContext is RenderContextWebGL) {
+      RenderObject3D renderObject3D = renderObject;
+      var renderContextWebGL = renderContext as RenderContextWebGL;
+      cs1.matrix3D.copyFrom(renderContextWebGL.activeProjectionMatrix);
+      cs2.matrix3D.copyFrom2DAndConcat(cs2.matrix, cs1.matrix3D);
+      cs2.matrix3D.prepend(renderObject3D.projectionMatrix3D);
+      cs2.matrix3D.prependInverse2D(cs2.matrix);
+      renderContextWebGL.activateProjectionMatrix(cs2.matrix3D);
+    }
+
+    _currentContextState = cs2;
+
+    //-----------
+
+    if (scrollMaskAfter) renderContext.beginRenderMask(this, scrollMask);
+
+    if ( scrollRect != null ) {
+      var cs3 = _currentContextState.nextContextState;
+      var sx = -scrollRect.left;
+      var sy = -scrollRect.top;
+      cs3.matrix.copyFromAndPrependTranslation(cs2.matrix, sx, sy);
+      cs3.blendMode = cs2.blendMode;
+      cs3.alpha = cs2.alpha;
+      _currentContextState = cs3;
+    }
+
+    if (cache != null) {
+      this.renderTextureQuad(cache);
+    } else if (filters.length > 0) {
+      renderObject.renderFiltered(this);
+    } else {
+      renderObject.render(this);
+    }
+
+    if ( scrollRect != null ) _currentContextState = cs2;
+
+    if (scrollMaskAfter) renderContext.endRenderMask(this, scrollMask);
+
+    //-----------
+
+    _currentContextState = cs1;
+
+    if (renderObject is RenderObject3D && renderContext is RenderContextWebGL) {
+      var renderContextWebGL = renderContext as RenderContextWebGL;
+      renderContextWebGL.activateProjectionMatrix(cs1.matrix3D);
+    }
+
+    if (scrollMaskBefore) renderContext.endRenderMask(this, scrollMask);
+  }
+
+  //---------------------------------------------------------------------------
+
+  void renderObjectMaskedScrollRect(RenderObject renderObject) {
     var matrix = renderObject.transformationMatrix;
     var blendMode = renderObject.blendMode;
     var alpha = renderObject.alpha;

@@ -23,6 +23,8 @@ class Bitmap extends DisplayObject {
   /// The BitmapData object being referenced.
   BitmapData _bitmapData;
 
+  RenderTextureQuad _scrollRectRenderTextureQuad;
+
   BitmapData get bitmapData => _bitmapData;
   set bitmapData(BitmapData value) {
     _bitmapData = value;
@@ -57,15 +59,48 @@ class Bitmap extends DisplayObject {
 
   @override
   void render(RenderState renderState) {
+    if (_scrollRectRenderTextureQuad != null) renderState.renderTextureQuad(_scrollRectRenderTextureQuad);
+    else
     if (bitmapData != null) bitmapData.render(renderState);
   }
 
   @override
   void renderFiltered(RenderState renderState) {
+    if (_scrollRectRenderTextureQuad != null) {
+      renderState.renderTextureQuadFiltered(_scrollRectRenderTextureQuad, this.filters);
+    }
+    else
     if (bitmapData != null) {
       var renderTextureQuad = bitmapData.renderTextureQuad;
       renderState.renderTextureQuadFiltered(renderTextureQuad, this.filters);
     }
   }
+
+  @override
+  set scrollRect(Rectangle<num> rect) {
+    if ( rect == null ) {
+      _scrollRect = null;
+      _scrollRectMask = null;
+      _scrollRectRenderTextureQuad = null;
+    } else {
+      _scrollRect = rect.clone();
+      if ( _scrollRectMask is _RectangleMask ){
+        _scrollRectMask.rectangle.width = _scrollRect.width;
+        _scrollRectMask.rectangle.height = _scrollRect.height;
+      }
+      else {
+        _scrollRectMask = new Mask.rectangle(0, 0, _scrollRect.width, _scrollRect.height);
+      }
+      if ( _bitmapData != null ) {
+        _scrollRectRenderTextureQuad = _bitmapData.renderTextureQuad.cut( _scrollRect );
+      }
+      else {
+        _scrollRectRenderTextureQuad = null;
+      }
+    }
+  }
+
+  @override
+  RenderTextureQuad get scrollRectRenderTextureQuad => _scrollRectRenderTextureQuad;
 
 }

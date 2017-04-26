@@ -789,6 +789,10 @@ abstract class DisplayObject
   @override
   Mask get scrollMask => _scrollRectMask;
 
+  @override
+  RenderTextureQuad get scrollRectRenderTextureQuad => null;
+
+
   //----------------------------------------------------------------------------
 
   /// Returns a rectangle that defines the area of this display object in

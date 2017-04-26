@@ -15,8 +15,11 @@ abstract class RenderObject {
   RenderTextureQuad get cache;
   RenderMask get mask;
 
+  bool get isScrollRectSet;
   Rectangle<num> get scrollRect;
   RenderMask get scrollMask;
+  RenderTextureQuad get scrollRectRenderTextureQuad;
+
 
   Rectangle<num> get bounds;
 
@@ -61,6 +64,9 @@ class _RenderTextureQuadObject implements RenderObject {
 
   @override
   final RenderMask scrollMask;
+
+  @override
+  RenderTextureQuad get scrollRectRenderTextureQuad;
 
   @override
   final num alpha = 1.0;
