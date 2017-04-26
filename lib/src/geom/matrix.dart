@@ -91,6 +91,9 @@ class Matrix {
 
   num get det => a * d - b * c;
 
+  num get scaleX => sqrt(a*a + c*c);
+  num get scaleY => sqrt(b*b + d*d);
+
   //-------------------------------------------------------------------------------------------------
 
   Vector transformVector(Vector vector) {

@@ -1008,6 +1008,21 @@ abstract class DisplayObject
     if (_cache != null) _cache.dispose();
   }
 
+  bool get hasCache
+  {
+    return (_cache != null) && (_cache.renderTextureQuad != null);
+  }
+
+  num get cachePixelRatio
+  {
+    return (_cache != null) ? _cache.pixelRatio : 1.0;
+  }
+
+  Rectangle<num> get cacheBounds
+  {
+    return (_cache != null) ? _cache.bounds : null;
+  }
+
   //----------------------------------------------------------------------------
   //----------------------------------------------------------------------------
 
