@@ -22,3 +22,4 @@ export 'filters/fxaa_filter.dart' show FxaaFilter;
 export 'filters/glow_filter.dart' show GlowFilter;
 export 'filters/normal_map_filter.dart' show NormalMapFilter;
 export 'filters/tint_filter.dart' show TintFilter;
+export 'filters/inner_drop_shadow_filter.dart' show InnerDropShadowFilter;
