@@ -8,6 +8,7 @@ abstract class RenderFilter {
   Rectangle<int> get overlap;
   List<int> get renderPassSources;
   List<int> get renderPassTargets;
+  List<int> get preservedTargets;
 
   bool get isSimple {
     var overlap = this.overlap;

@@ -1,22 +1,26 @@
-library stagexl.filters.inner_drop_shadow;
+library stagexl.filters.bevel;
 
 import 'dart:math' hide Point, Rectangle;
 import 'dart:html' show ImageData;
 
+import 'inner_drop_shadow_filter.dart';
+import 'drop_shadow_filter.dart';
 import '../display.dart';
 import '../engine.dart';
 import '../geom.dart';
 import '../internal/filter_helpers.dart';
 import '../internal/tools.dart';
 
-class InnerDropShadowFilter extends BitmapFilter {
+class BevelFilter extends BitmapFilter {
 
   num _distance;
   num _angle;
   int _blurX;
   int _blurY;
   int _quality;
-  int _color;
+  int _lightColor;
+  int _shadowColor;
+  int _lightPassCount;
 
   final List<int> _renderPassSources = new List<int>();
   final List<int> _renderPassTargets = new List<int>();
@@ -24,13 +28,15 @@ class InnerDropShadowFilter extends BitmapFilter {
 
   RenderTextureQuad pass0Source;
 
-  InnerDropShadowFilter([
-    num distance = 8, num angle = PI / 4, int color = 0xFF000000,
+  BevelFilter([
+    num distance = 8, num angle = PI / 4,
+    int lightColor = 0xFF000000, int shadowColor = 0xFF000000,
     int blurX = 4, int blurY = 4, int quality = 1]) {
 
     this.distance = distance;
     this.angle = angle;
-    this.color = color;
+    this.lightColor = lightColor;
+    this.shadowColor = shadowColor;
     this.blurX = blurX;
     this.blurY = blurY;
     this.quality = quality;
@@ -41,9 +47,20 @@ class InnerDropShadowFilter extends BitmapFilter {
 
   @override
   BitmapFilter clone() {
-    return new InnerDropShadowFilter(
-      distance, angle, color, blurX, blurY, quality);
+    return new BevelFilter(
+      distance, angle, lightColor, shadowColor, blurX, blurY, quality);
   }
+
+/*
+  @override
+  Rectangle<int> get overlap {
+    int shiftX = (this.distance * cos(this.angle)).round();
+    int shiftY = (this.distance * sin(this.angle)).round();
+    var sRect = new Rectangle<int>(-1, -1, 2, 2);
+    var dRect = new Rectangle<int>(shiftX - blurX, shiftY - blurY, 2 * blurX, 2 * blurY);
+    return sRect.boundingBox(dRect);
+  }
+*/
 
   @override
   Rectangle<int> get overlap {
@@ -78,12 +95,20 @@ class InnerDropShadowFilter extends BitmapFilter {
     _angle = value;
   }
 
+  /// The color of the light.
+
+  int get lightColor => _lightColor;
+
+  set lightColor(int value) {
+    _lightColor = value;
+  }
+
   /// The color of the shadow.
 
-  int get color => _color;
+  int get shadowColor => _shadowColor;
 
-  set color(int value) {
-    _color = value;
+  set shadowColor(int value) {
+    _shadowColor = value;
   }
 
   /// The horizontal blur radius in the range from 0 to 64.
@@ -119,14 +144,17 @@ class InnerDropShadowFilter extends BitmapFilter {
     _renderPassTargets.clear();
     _preservedTargets.clear();
 
-    _preservedTargets.add(0);
-
-    for(int i = 0; i < value; i++) {
+    for(int i = 0; i < value*2; i++) {
       _renderPassSources.add(i * 2 + 0);
       _renderPassSources.add(i * 2 + 1);
       _renderPassTargets.add(i * 2 + 1);
       _renderPassTargets.add(i * 2 + 2);
     }
+
+    _lightPassCount = value*2;
+
+    _preservedTargets.add(0);
+    _preservedTargets.add(_lightPassCount);
   }
 
   //---------------------------------------------------------------------------
@@ -135,7 +163,7 @@ class InnerDropShadowFilter extends BitmapFilter {
   void apply(BitmapData bitmapData, [Rectangle<num> rectangle]) {
 /*
 NOTE: this is the drop shadow filter apply (minus knock out and hideObject
-      The InnerDropShadowFilter version would need to be created similar to this
+      The BevelFilter version would need to be created similar to this & InnerDropShadowFilter
 
     RenderTextureQuad renderTextureQuad = rectangle == null
         ? bitmapData.renderTextureQuad
@@ -186,7 +214,10 @@ NOTE: this is the drop shadow filter apply (minus knock out and hideObject
     num pixelRatioScale = pixelRatio * passScale;
     num pixelRatioDistance = pixelRatio * distance;
 
-    if ( pass == 0 )
+    int color = pass < _lightPassCount ? _lightColor : _shadowColor;
+    num angle = pass < _lightPassCount ? _angle : _angle + PI;
+
+    if ( ( pass == 0 ) || ( pass == _lightPassCount ) )
     {
       InnerDropShadowFilterProgram renderProgram = renderContext.getRenderProgram(
           r"$InnerDropShadowFilterProgram", () => new InnerDropShadowFilterProgram());
@@ -195,7 +226,7 @@ NOTE: this is the drop shadow filter apply (minus knock out and hideObject
       renderContext.activateRenderTexture(renderTexture);
 
       renderProgram.configure(
-          this.color | 0xFF000000,
+          color | 0xFF000000,
           1.0,
           pixelRatioDistance * cos(angle) / renderTexture.width,
           pixelRatioDistance * sin(angle) / renderTexture.height,
@@ -208,7 +239,7 @@ NOTE: this is the drop shadow filter apply (minus knock out and hideObject
       pass0Source = renderTextureQuad;
     }
     else
-    if (pass == passCount - 1)
+    if ( (pass == _lightPassCount - 1) || (pass == passCount - 1) )
     {
       InnerDropShadowFilterBlendProgram renderProgram = renderContext.getRenderProgram(
           r"InnerDropShadowFilterBlendProgram", () => new InnerDropShadowFilterBlendProgram());
@@ -218,7 +249,7 @@ NOTE: this is the drop shadow filter apply (minus knock out and hideObject
       renderContext.activateRenderTextureAt(pass0Source.renderTexture,1);
 
       renderProgram.configure(
-          this.color,
+          color,
           renderState.globalAlpha,
           0.0,
           0.0,
@@ -239,7 +270,7 @@ NOTE: this is the drop shadow filter apply (minus knock out and hideObject
       renderContext.activateRenderTexture(renderTexture);
 
       renderProgram.configure(
-          this.color | 0xFF000000,
+          color | 0xFF000000,
           1.0,
           0.0,
           0.0,
@@ -254,6 +285,7 @@ NOTE: this is the drop shadow filter apply (minus knock out and hideObject
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
+/*
 
 class InnerDropShadowFilterProgram extends RenderProgramSimple {
 
@@ -405,3 +437,4 @@ class InnerDropShadowFilterBlendProgram extends RenderProgramSimple {
   }
 
 }
+*/

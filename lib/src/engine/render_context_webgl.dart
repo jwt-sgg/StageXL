@@ -279,6 +279,7 @@ class RenderContextWebGL extends RenderContext {
 
       List<int> renderPassSources = filter.renderPassSources;
       List<int> renderPassTargets = filter.renderPassTargets;
+      List<int> preservedTargets = filter.preservedTargets;
 
       for (int pass = 0; pass < renderPassSources.length; pass++) {
 
@@ -324,10 +325,19 @@ class RenderContextWebGL extends RenderContext {
 
         // release obsolete source RenderFrameBuffer
 
-        if (renderPassSources.skip(pass + 1).every((rps) => rps != renderPassSource)) {
-          renderFrameBufferMap.remove(renderPassSource);
-          this.releaseRenderFrameBuffer(sourceRenderFrameBuffer);
+        if ( !preservedTargets.contains(renderPassSource) ){
+          if (renderPassSources.skip(pass + 1).every((rps) => rps != renderPassSource)) {
+            renderFrameBufferMap.remove(renderPassSource);
+            this.releaseRenderFrameBuffer(sourceRenderFrameBuffer);
+          }
         }
+      }
+
+      for ( int pt = 0; pt < preservedTargets.length; ++pt )
+      {
+        sourceRenderFrameBuffer = renderFrameBufferMap[preservedTargets[pt]];
+        this.releaseRenderFrameBuffer(sourceRenderFrameBuffer);
+        renderFrameBufferMap.remove(preservedTargets[pt]);
       }
 
       renderFrameBufferMap.clear();
