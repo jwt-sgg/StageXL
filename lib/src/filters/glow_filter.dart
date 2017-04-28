@@ -15,6 +15,7 @@ class GlowFilter extends BitmapFilter {
   int _blurX;
   int _blurY;
   int _quality;
+  num _strength;
 
   bool knockout;
   bool hideObject;
@@ -25,12 +26,14 @@ class GlowFilter extends BitmapFilter {
   GlowFilter([
     int color = 0xFF000000,
     int blurX = 4, int blurY = 4, int quality = 1,
+    num strength = 1,
     bool knockout = false, bool hideObject = false]) {
 
     this.color = color;
     this.blurX = blurX;
     this.blurY = blurY;
     this.quality = quality;
+    this.strength = strength;
     this.knockout = knockout;
     this.hideObject = hideObject;
   }
@@ -79,6 +82,15 @@ class GlowFilter extends BitmapFilter {
   set blurY(int value) {
     RangeError.checkValueInInterval(value, 0, 64);
     _blurY = value;
+  }
+
+  /// The strength of the effect from 0 to 255.
+
+  num get strength => _strength;
+
+  set strength(num value) {
+    if(value < 0 ) value = 0;
+    _strength = value;
   }
 
   /// The quality of the glow in the range from 1 to 5.
@@ -176,6 +188,7 @@ class GlowFilter extends BitmapFilter {
       renderContext.activateRenderTexture(renderTexture);
 
       renderProgram.configure(
+        strength,
         pass == passCount - 2 ? this.color : this.color | 0xFF000000,
         pass == passCount - 2 ? renderState.globalAlpha : 1.0,
         pass.isEven ? pixelRatioScale * blurX / renderTexture.width : 0.0,
@@ -222,6 +235,7 @@ class GlowFilterProgram extends RenderProgramSimple {
 
     uniform sampler2D uSampler;
     uniform vec4 uColor;
+    uniform float uStrength;
 
     varying vec2 vBlurCoords[7];
 
@@ -235,19 +249,21 @@ class GlowFilterProgram extends RenderProgramSimple {
       alpha += texture2D(uSampler, vBlurCoords[5]).a * 0.05399;
       alpha += texture2D(uSampler, vBlurCoords[6]).a * 0.00443;
       alpha *= uColor.a;
+      alpha = 1.0 - pow(( 1.0 - alpha ),uStrength);
       gl_FragColor = vec4(uColor.rgb * alpha, alpha);
     }
     """;
 
   //---------------------------------------------------------------------------
 
-  void configure(int color, num alpha, num radiusX, num radiusY) {
+  void configure(num strength, int color, num alpha, num radiusX, num radiusY) {
 
     num r = colorGetR(color) / 255.0;
     num g = colorGetG(color) / 255.0;
     num b = colorGetB(color) / 255.0;
     num a = colorGetA(color) / 255.0 * alpha;
 
+    renderingContext.uniform1f(uniforms["uStrength"], strength);
     renderingContext.uniform2f(uniforms["uRadius"], radiusX, radiusY);
     renderingContext.uniform4f(uniforms["uColor"], r, g, b, a);
   }

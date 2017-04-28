@@ -21,6 +21,7 @@ class BevelFilter extends BitmapFilter {
   int _lightColor;
   int _shadowColor;
   int _lightPassCount;
+  num _strength;
 
   final List<int> _renderPassSources = new List<int>();
   final List<int> _renderPassTargets = new List<int>();
@@ -31,7 +32,8 @@ class BevelFilter extends BitmapFilter {
   BevelFilter([
     num distance = 8, num angle = PI / 4,
     int lightColor = 0xFF000000, int shadowColor = 0xFF000000,
-    int blurX = 4, int blurY = 4, int quality = 1]) {
+    int blurX = 4, int blurY = 4, int quality = 1,
+    num strength = 1]) {
 
     this.distance = distance;
     this.angle = angle;
@@ -40,6 +42,7 @@ class BevelFilter extends BitmapFilter {
     this.blurX = blurX;
     this.blurY = blurY;
     this.quality = quality;
+    this.strength = strength;
   }
 
   //---------------------------------------------------------------------------
@@ -127,6 +130,15 @@ class BevelFilter extends BitmapFilter {
   set blurY(int value) {
     RangeError.checkValueInInterval(value, 0, 64);
     _blurY = value;
+  }
+
+  /// The strength of the effect from 0 to 255.
+
+  num get strength => _strength;
+
+  set strength(num value) {
+    if(value < 0 ) value = 0;
+    _strength = value;
   }
 
   /// The quality of the shadow in the range from 1 to 5.
@@ -226,6 +238,7 @@ NOTE: this is the drop shadow filter apply (minus knock out and hideObject
       renderContext.activateRenderTexture(renderTexture);
 
       renderProgram.configure(
+          strength,
           color | 0xFF000000,
           1.0,
           pixelRatioDistance * cos(angle) / renderTexture.width,
@@ -249,6 +262,7 @@ NOTE: this is the drop shadow filter apply (minus knock out and hideObject
       renderContext.activateRenderTextureAt(pass0Source.renderTexture,1);
 
       renderProgram.configure(
+          strength,
           color,
           renderState.globalAlpha,
           0.0,
@@ -270,6 +284,7 @@ NOTE: this is the drop shadow filter apply (minus knock out and hideObject
       renderContext.activateRenderTexture(renderTexture);
 
       renderProgram.configure(
+          strength,
           color | 0xFF000000,
           1.0,
           0.0,
@@ -285,156 +300,3 @@ NOTE: this is the drop shadow filter apply (minus knock out and hideObject
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
-/*
-
-class InnerDropShadowFilterProgram extends RenderProgramSimple {
-
-  @override
-  String get vertexShaderSource => """
-
-    uniform mat4 uProjectionMatrix;
-    uniform vec2 uRadius;
-    uniform vec2 uShift;
-
-    attribute vec2 aVertexPosition;
-    attribute vec2 aVertexTextCoord;
-
-    varying vec2 vBlurCoords[7];
-
-    void main() {
-      vec2 texCoord = aVertexTextCoord - uShift;
-      vBlurCoords[0] = texCoord - uRadius * 1.2;
-      vBlurCoords[1] = texCoord - uRadius * 0.8;
-      vBlurCoords[2] = texCoord - uRadius * 0.4;
-      vBlurCoords[3] = texCoord;
-      vBlurCoords[4] = texCoord + uRadius * 0.4;
-      vBlurCoords[5] = texCoord + uRadius * 0.8;
-      vBlurCoords[6] = texCoord + uRadius * 1.2;
-      gl_Position = vec4(aVertexPosition, 0.0, 1.0) * uProjectionMatrix;
-    }
-    """;
-
-  @override
-  String get fragmentShaderSource => """
-
-    precision mediump float;
-
-    uniform sampler2D uSampler;
-    uniform vec4 uColor;
-      
-    varying vec2 vBlurCoords[7];
-
-    void main() {
-      float alpha = 0.0;
-      alpha += texture2D(uSampler, vBlurCoords[0]).a * 0.00443;
-      alpha += texture2D(uSampler, vBlurCoords[1]).a * 0.05399;
-      alpha += texture2D(uSampler, vBlurCoords[2]).a * 0.24197;
-      alpha += texture2D(uSampler, vBlurCoords[3]).a * 0.39894;
-      alpha += texture2D(uSampler, vBlurCoords[4]).a * 0.24197;
-      alpha += texture2D(uSampler, vBlurCoords[5]).a * 0.05399;
-      alpha += texture2D(uSampler, vBlurCoords[6]).a * 0.00443;
-      alpha = 1.0 - alpha;
-      alpha *= uColor.a;
-      gl_FragColor = vec4(uColor.rgb * alpha, alpha);
-    }
-    """;
-
-  //---------------------------------------------------------------------------
-  //---------------------------------------------------------------------------
-
-  void configure(
-      int color, num alpha,
-      num shiftX, num shiftY,
-      num radiusX, num radiusY) {
-
-    num r = colorGetR(color) / 255.0;
-    num g = colorGetG(color) / 255.0;
-    num b = colorGetB(color) / 255.0;
-    num a = colorGetA(color) / 255.0 * alpha;
-
-    renderingContext.uniform2f(uniforms["uShift"], shiftX, shiftY);
-    renderingContext.uniform2f(uniforms["uRadius"], radiusX, radiusY);
-    renderingContext.uniform4f(uniforms["uColor"], r, g, b, a);
-  }
-
-}
-//-----------------------------------------------------------------------------
-
-class InnerDropShadowFilterBlendProgram extends RenderProgramSimple {
-
-  @override
-  String get vertexShaderSource => """
-
-    uniform mat4 uProjectionMatrix;
-    uniform vec2 uRadius;
-    uniform vec2 uShift;
-
-    attribute vec2 aVertexPosition;
-    attribute vec2 aVertexTextCoord;
-
-    varying vec2 vSrcCoords;
-    varying vec2 vBlurCoords[7];
-
-    void main() {
-      vSrcCoords = aVertexTextCoord;
-      vec2 texCoord = aVertexTextCoord - uShift;
-      vBlurCoords[0] = texCoord - uRadius * 1.2;
-      vBlurCoords[1] = texCoord - uRadius * 0.8;
-      vBlurCoords[2] = texCoord - uRadius * 0.4;
-      vBlurCoords[3] = texCoord;
-      vBlurCoords[4] = texCoord + uRadius * 0.4;
-      vBlurCoords[5] = texCoord + uRadius * 0.8;
-      vBlurCoords[6] = texCoord + uRadius * 1.2;
-      gl_Position = vec4(aVertexPosition, 0.0, 1.0) * uProjectionMatrix;
-    }
-    """;
-
-  @override
-  String get fragmentShaderSource => """
-
-    precision mediump float;
-
-    uniform sampler2D uSrcSampler;
-    uniform sampler2D uSampler;
-    uniform vec4 uColor;
-
-    varying vec2 vSrcCoords;
-    varying vec2 vBlurCoords[7];
-
-    void main() {
-      float alpha = 0.0;
-      alpha += texture2D(uSampler, vBlurCoords[0]).a * 0.00443;
-      alpha += texture2D(uSampler, vBlurCoords[1]).a * 0.05399;
-      alpha += texture2D(uSampler, vBlurCoords[2]).a * 0.24197;
-      alpha += texture2D(uSampler, vBlurCoords[3]).a * 0.39894;
-      alpha += texture2D(uSampler, vBlurCoords[4]).a * 0.24197;
-      alpha += texture2D(uSampler, vBlurCoords[5]).a * 0.05399;
-      alpha += texture2D(uSampler, vBlurCoords[6]).a * 0.00443;
-      alpha *= uColor.a;
-      vec4 srcColor = texture2D(uSrcSampler,vSrcCoords);
-      gl_FragColor = vec4(((srcColor.rgb*(1.0-alpha))+(uColor.rgb * alpha))*srcColor.a, srcColor.a);
-    }
-    """;
-
-  //---------------------------------------------------------------------------
-  //---------------------------------------------------------------------------
-
-  void configure(
-      int color, num alpha,
-      num shiftX, num shiftY,
-      num radiusX, num radiusY) {
-
-    renderingContext.uniform1i(uniforms["uSrcSampler"], 1);
-
-    num r = colorGetR(color) / 255.0;
-    num g = colorGetG(color) / 255.0;
-    num b = colorGetB(color) / 255.0;
-    num a = colorGetA(color) / 255.0 * alpha;
-
-    renderingContext.uniform2f(uniforms["uShift"], shiftX, shiftY);
-    renderingContext.uniform2f(uniforms["uRadius"], radiusX, radiusY);
-    renderingContext.uniform4f(uniforms["uColor"], r, g, b, a);
-  }
-
-}
-*/
