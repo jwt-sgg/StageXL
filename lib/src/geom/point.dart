@@ -15,6 +15,8 @@ class Point<T extends num> implements math.Point<T> {
 
   Point(this.x, this.y);
 
+  Point.zero():x=0, y=0;
+
   Point.from(math.Point<T> p) : this(p.x, p.y);
 
   Point<T> clone() => new Point<T>(x, y);
