@@ -67,7 +67,7 @@ class BevelFilter extends BitmapFilter {
 
   @override
   Rectangle<int> get overlap {
-    var sRect = new Rectangle<int>(-1, -1, 1, 1);
+    var sRect = new Rectangle<int>(-1, -1, 2, 2);
     return sRect;
   }
 
