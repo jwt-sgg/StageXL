@@ -753,6 +753,8 @@ abstract class DisplayObject
 
   num get scrollX => _scrollRect != null ? _scrollRect.left : 0;
   num get scrollY => _scrollRect != null ? _scrollRect.top : 0;
+  num get scrollWidth => _scrollRect != null ? _scrollRect.width : 0;
+  num get scrollHeight => _scrollRect != null ? _scrollRect.height : 0;
 
   /// determine if scrollRect has been set.  This allows the user to check
   /// for a valid scrollRect without needing to clone it
@@ -826,13 +828,47 @@ abstract class DisplayObject
     return matrix.transformRectangle(rectangle, rectangle);
   }
 
+  //----------------------------------------------------------------------------
+
+  /// Returns a rectangle that defines the layout area of this display object in
+  /// this display object's local coordinates.
+
+  @override
+  Rectangle<num> get layoutBounds {
+    return this.bounds;
+  }
+
+  /// Returns a rectangle that defines the layout area of this display object in
+  /// this display object's parent coordinates.
+
+  Rectangle<num> get layoutBoundsTransformed {
+    var rectangle = this.layoutBounds;
+    var matrix = this.transformationMatrix;
+    return matrix.transformRectangle(rectangle, rectangle);
+  }
+
+  /// Returns the layout bounds of this display object relative to the specified
+  /// [targetSpace].
+  ///
+  /// This method may return ´null´ if this display objects has no
+  /// relation to the [targetSpace].
+
+  Rectangle<num> getlayoutBounds(DisplayObject targetSpace) {
+    var rectangle = this.layoutBounds;
+    var matrix = this.getTransformationMatrix3D(targetSpace);
+    if (matrix == null) return null;
+    return matrix.transformRectangle(rectangle, rectangle);
+  }
+
+  //----------------------------------------------------------------------------
+
   /// Aligns the display object's pivot point relative to the current bounds.
 
   void alignPivot([
     HorizontalAlign hAlign = HorizontalAlign.Center,
     VerticalAlign vAlign = VerticalAlign.Center]) {
 
-    var b = this.bounds;
+    var b = this.layoutBounds;
     if (hAlign == HorizontalAlign.Left) this.pivotX = b.left;
     if (hAlign == HorizontalAlign.Center) this.pivotX = b.left + b.width / 2;
     if (hAlign == HorizontalAlign.Right) this.pivotX = b.right;
