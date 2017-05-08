@@ -16,8 +16,14 @@ class RenderBufferIndex {
   //---------------------------------------------------------------------------
 
   RenderBufferIndex(int length) :
-    data = new Int16List(length),
-    usage = gl.DYNAMIC_DRAW;
+        data = new Int16List(length),
+        usage = gl.DYNAMIC_DRAW;
+
+  //---------------------------------------------------------------------------
+
+  RenderBufferIndex.static(int length) :
+        data = new Int16List(length),
+        usage = gl.STATIC_DRAW;
 
   //---------------------------------------------------------------------------
 

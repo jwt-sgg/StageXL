@@ -16,8 +16,14 @@ class RenderBufferVertex {
   //---------------------------------------------------------------------------
 
   RenderBufferVertex(int length) :
-    data = new Float32List(length),
-    usage = gl.DYNAMIC_DRAW;
+        data = new Float32List(length),
+        usage = gl.DYNAMIC_DRAW;
+
+  //---------------------------------------------------------------------------
+
+  RenderBufferVertex.static(int length) :
+        data = new Float32List(length),
+        usage = gl.STATIC_DRAW;
 
   //---------------------------------------------------------------------------
 
