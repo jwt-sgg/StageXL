@@ -70,6 +70,18 @@ void clearChannel(List<int> data, int offset, int length) {
 
 //-----------------------------------------------------------------------------------------------
 
+void setChannel(List<int> data, int offset, int length, int value) {
+  int offsetStart = offset;
+  int offsetEnd = offset + length * 4 - 4;
+  if (offsetStart < 0) throw new RangeError(offsetStart);
+  if (offsetEnd >= data.length) throw new RangeError(offsetEnd);
+  for(int i = offsetStart; i <= offsetEnd; i += 4) {
+    data[i] = value;
+  }
+}
+
+//-----------------------------------------------------------------------------------------------
+
 void shiftChannel(List<int> data, int channel, int width, int height, int shiftX, int shiftY) {
 
   if (channel < 0) throw new ArgumentError();
@@ -98,6 +110,74 @@ void shiftChannel(List<int> data, int channel, int width, int height, int shiftX
       clearChannel(data, (y * width) * 4 + channel, shiftX);
     } else if (shiftX < 0) {
       clearChannel(data, (y * width + width + shiftX) * 4 + channel, 0 - shiftX);
+    }
+  }
+}
+
+//-----------------------------------------------------------------------------------------------
+
+void shiftAndInvertChannel(List<int> data, int channel, int width, int height, int shiftX, int shiftY) {
+
+  if (channel < 0) throw new ArgumentError();
+  if (channel > 3) throw new ArgumentError();
+  if (shiftX == 0 && shiftY == 0) return;
+
+  if (shiftX.abs() >= width || shiftY.abs() >= height) {
+    setChannel(data, channel, width * height,255);
+    return;
+  }
+
+  if (shiftX + width * shiftY < 0) {
+    int dst = channel;
+    int src = channel - 4 * (shiftX + width * shiftY);
+    for(; src < data.length; src += 4, dst += 4) data[dst] = 255 - data[src];
+  } else {
+    int dst = data.length + channel - 4;
+    int src = data.length + channel - 4 * (shiftX + width * shiftY);
+    for(; src >= 0; src -= 4, dst -= 4) data[dst] = 255 - data[src];
+  }
+
+  for(int y = 0; y < height; y++) {
+    if (y < shiftY || y >= height + shiftY) {
+      setChannel(data, (y * width) * 4 + channel, width, 255);
+    } else if (shiftX > 0) {
+      setChannel(data, (y * width) * 4 + channel, shiftX, 255);
+    } else if (shiftX < 0) {
+      setChannel(data, (y * width + width + shiftX) * 4 + channel, 0 - shiftX, 255);
+    }
+  }
+}
+
+//-----------------------------------------------------------------------------------------------
+
+void shiftAndClampInvertChannel(List<int> data, int channel, int width, int height, int shiftX, int shiftY) {
+
+  if (channel < 0) throw new ArgumentError();
+  if (channel > 3) throw new ArgumentError();
+  if (shiftX == 0 && shiftY == 0) return;
+
+  if (shiftX.abs() >= width || shiftY.abs() >= height) {
+    setChannel(data, channel, width * height,255);
+    return;
+  }
+
+  if (shiftX + width * shiftY < 0) {
+    int dst = channel;
+    int src = channel - 4 * (shiftX + width * shiftY);
+    for(; src < data.length; src += 4, dst += 4) data[dst] = data[src] > 0 ? 0 : 255;//255 - data[src];
+  } else {
+    int dst = data.length + channel - 4;
+    int src = data.length + channel - 4 * (shiftX + width * shiftY);
+    for(; src >= 0; src -= 4, dst -= 4) data[dst] = data[src] > 0 ? 0 : 255;//255 - data[src];
+  }
+
+  for(int y = 0; y < height; y++) {
+    if (y < shiftY || y >= height + shiftY) {
+      setChannel(data, (y * width) * 4 + channel, width, 255);
+    } else if (shiftX > 0) {
+      setChannel(data, (y * width) * 4 + channel, shiftX, 255);
+    } else if (shiftX < 0) {
+      setChannel(data, (y * width + width + shiftX) * 4 + channel, 0 - shiftX, 255);
     }
   }
 }
@@ -265,6 +345,50 @@ void setColorBlend(List<int> dstData, int color, List<int> srcData) {
         dstData[i + 1] = (srcData[i + 1] * srcAX + bColor * dstAX) ~/ outAX;
         dstData[i + 2] = (srcData[i + 2] * srcAX + gColor * dstAX) ~/ outAX;
         dstData[i + 3] = (srcData[i + 3] * srcAX + rColor * dstAX) ~/ outAX;
+      } else {
+        dstData[i + 0] = 0;
+      }
+    }
+  }
+}
+
+//-----------------------------------------------------------------------------------------------
+
+void setColorBlendDst(List<int> dstData, int color, List<int> srcData) {
+
+  if (dstData.length != srcData.length) return;
+
+  int rColor = colorGetR(color);
+  int gColor = colorGetG(color);
+  int bColor = colorGetB(color);
+  int aColor = colorGetA(color);
+
+  if (env.isLittleEndianSystem) {
+    for(int i = 0; i <= dstData.length - 4; i += 4) {
+      int srcA = srcData[i + 3];
+      int dstA = dstData[i + 3];
+      int dstAX = (dstA * aColor | 0) >> 8;
+      int srcAX = (255 - dstAX);
+      if (srcA > 0) {
+        dstData[i + 0] = (srcData[i + 0] * srcAX + rColor * dstAX) ~/ 255;
+        dstData[i + 1] = (srcData[i + 1] * srcAX + gColor * dstAX) ~/ 255;
+        dstData[i + 2] = (srcData[i + 2] * srcAX + bColor * dstAX) ~/ 255;
+        dstData[i + 3] = srcA;
+      } else {
+        dstData[i + 3] = 0;
+      }
+    }
+  } else {
+    for(int i = 0; i <= dstData.length - 4; i += 4) {
+      int srcA = srcData[i + 0];
+      int dstA = dstData[i + 0];
+      int dstAX = (dstA * aColor | 0) >> 8;
+      int srcAX = (255 - dstAX);
+      if (srcA > 0) {
+        dstData[i + 0] = srcA;
+        dstData[i + 1] = (srcData[i + 1] * srcAX + bColor * dstAX) ~/ 255;
+        dstData[i + 2] = (srcData[i + 2] * srcAX + gColor * dstAX) ~/ 255;
+        dstData[i + 3] = (srcData[i + 3] * srcAX + rColor * dstAX) ~/ 255;
       } else {
         dstData[i + 0] = 0;
       }

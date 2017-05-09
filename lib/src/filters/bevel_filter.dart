@@ -54,17 +54,6 @@ class BevelFilter extends BitmapFilter {
       distance, angle, lightColor, shadowColor, blurX, blurY, quality);
   }
 
-/*
-  @override
-  Rectangle<int> get overlap {
-    int shiftX = (this.distance * cos(this.angle)).round();
-    int shiftY = (this.distance * sin(this.angle)).round();
-    var sRect = new Rectangle<int>(-1, -1, 2, 2);
-    var dRect = new Rectangle<int>(shiftX - blurX, shiftY - blurY, 2 * blurX, 2 * blurY);
-    return sRect.boundingBox(dRect);
-  }
-*/
-
   @override
   Rectangle<int> get overlap {
     var sRect = new Rectangle<int>(-1, -1, 2, 2);
@@ -173,22 +162,29 @@ class BevelFilter extends BitmapFilter {
 
   @override
   void apply(BitmapData bitmapData, [Rectangle<num> rectangle]) {
-/*
-NOTE: this is the drop shadow filter apply (minus knock out and hideObject
-      The BevelFilter version would need to be created similar to this & InnerDropShadowFilter
 
     RenderTextureQuad renderTextureQuad = rectangle == null
         ? bitmapData.renderTextureQuad
         : bitmapData.renderTextureQuad.cut(rectangle);
 
+    applyPass( renderTextureQuad, this.shadowColor, angle+PI );
+    applyPass( renderTextureQuad, this.lightColor, angle );
+  }
+
+  //---------------------------------------------------------------------------
+
+  void applyPass( RenderTextureQuad renderTextureQuad, int color, num angle  ) {
+
     ImageData sourceImageData = renderTextureQuad.getImageData();
 
     ImageData imageData = renderTextureQuad.getImageData();
     List<int> data = imageData.data;
+
     int width = ensureInt(imageData.width);
     int height = ensureInt(imageData.height);
-    int shiftX = (this.distance * cos(this.angle)).round();
-    int shiftY = (this.distance * sin(this.angle)).round();
+
+    int shiftX = (this.distance * cos(angle)).round();
+    int shiftY = (this.distance * sin(angle)).round();
 
     num pixelRatio = renderTextureQuad.pixelRatio;
     int blurX = (this.blurX * pixelRatio).round();
@@ -196,7 +192,7 @@ NOTE: this is the drop shadow filter apply (minus knock out and hideObject
     int alphaChannel = BitmapDataChannel.getCanvasIndex(BitmapDataChannel.ALPHA);
     int stride = width * 4;
 
-    shiftChannel(data, 3, width, height, shiftX, shiftY);
+    shiftAndClampInvertChannel(data, 3, width, height, shiftX, shiftY);
 
     for (int x = 0; x < width; x++) {
       blur(data, x * 4 + alphaChannel, height, stride, blurY);
@@ -206,10 +202,9 @@ NOTE: this is the drop shadow filter apply (minus knock out and hideObject
       blur(data, y * stride + alphaChannel, width, 4, blurX);
     }
 
-    setColorBlend(data, this.color, sourceImageData.data);
+    setColorBlendDst(data, color, sourceImageData.data);
 
     renderTextureQuad.putImageData(imageData);
-*/
   }
 
   //---------------------------------------------------------------------------

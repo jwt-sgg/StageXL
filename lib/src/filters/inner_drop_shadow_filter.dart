@@ -145,9 +145,6 @@ class InnerDropShadowFilter extends BitmapFilter {
 
   @override
   void apply(BitmapData bitmapData, [Rectangle<num> rectangle]) {
-/*
-NOTE: this is the drop shadow filter apply (minus knock out and hideObject
-      The InnerDropShadowFilter version would need to be created similar to this
 
     RenderTextureQuad renderTextureQuad = rectangle == null
         ? bitmapData.renderTextureQuad
@@ -168,7 +165,7 @@ NOTE: this is the drop shadow filter apply (minus knock out and hideObject
     int alphaChannel = BitmapDataChannel.getCanvasIndex(BitmapDataChannel.ALPHA);
     int stride = width * 4;
 
-    shiftChannel(data, 3, width, height, shiftX, shiftY);
+    shiftAndInvertChannel(data, 3, width, height, shiftX, shiftY);
 
     for (int x = 0; x < width; x++) {
       blur(data, x * 4 + alphaChannel, height, stride, blurY);
@@ -178,10 +175,10 @@ NOTE: this is the drop shadow filter apply (minus knock out and hideObject
       blur(data, y * stride + alphaChannel, width, 4, blurX);
     }
 
-    setColorBlend(data, this.color, sourceImageData.data);
+    setColorBlendDst(data, this.color, sourceImageData.data);
 
     renderTextureQuad.putImageData(imageData);
-*/
+
   }
 
   //---------------------------------------------------------------------------
