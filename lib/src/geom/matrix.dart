@@ -91,8 +91,10 @@ class Matrix {
 
   num get det => a * d - b * c;
 
-  num get scaleX => sqrt(a*a + c*c);
-  num get scaleY => sqrt(b*b + d*d);
+  num get scaleX => a.sign*sqrt(a*a + b*b);
+  num get scaleY => d.sign*sqrt(c*c + d*d);
+
+  num get rotation => atan2(b,a);
 
   //-------------------------------------------------------------------------------------------------
 

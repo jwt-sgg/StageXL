@@ -539,6 +539,21 @@ abstract class DisplayObject
 
   //----------------------------------------------------------------------------
 
+  set transformationMatrix( Matrix matrix )
+  {
+    // assumes no skew...
+    _transformationMatrix.copyFrom(matrix);
+    _rotation = matrix.rotation;
+    _scaleX = matrix.scaleX;
+    _scaleY = matrix.scaleY;
+    _skewX = 0.0;
+    _skewY = 0.0;
+    _x = matrix.tx + _pivotX * matrix.a + _pivotY * matrix.c;
+    _y = matrix.ty + _pivotX * matrix.b + _pivotY * matrix.d;
+  }
+
+  //----------------------------------------------------------------------------
+
   /// The transformation matrix of this display object relative to
   /// this display object's parent.
   ///
