@@ -4,7 +4,9 @@ import 'dart:typed_data';
 import 'environment.dart' as env;
 import 'tools.dart';
 
-Int32List _buffer = new Int32List(1024);
+const int BUFFER_SIZE = 2048;
+const int BUFFER_SIZE_BITMASK = BUFFER_SIZE-1;
+Int32List _buffer = new Int32List(BUFFER_SIZE);
 
 //-----------------------------------------------------------------------------------------------
 
@@ -189,35 +191,44 @@ void blur(List<int> data, int offset, int length, int stride, int radius) {
   radius += 1;
   int weight = radius * radius;
   int weightInv = (1 << 22) ~/ weight;
-  int sum = weight ~/ 2;
+  int sum = 0;//weight ~/ 2;
   int dif = 0;
   int offsetSource = offset;
   int offsetDestination = offset;
+  int lastOffsetSource = offsetSource + ((length-1) * stride);
   int radius1 = radius * 1;
   int radius2 = radius * 2;
 
   Int32List buffer = _buffer;
+
+  for ( int p = 0; p < radius1; ++p )
+  {
+    int value = data[offsetSource];
+    buffer[p & BUFFER_SIZE_BITMASK] = data[offsetSource];
+    sum += dif += value;
+  }
 
   for (int i = 0; i < length + radius1; i++) {
 
     if (i >= radius1) {
       data[offsetDestination] = ((sum * weightInv) | 0) >> 22;
       offsetDestination += stride;
-      if (i >= radius2) {
-        dif -= 2 * buffer[i & 1023] - buffer[(i - radius1) & 1023];
-      } else {
-        dif -= 2 * buffer[i & 1023];
-      }
+      dif -= 2 * buffer[i & BUFFER_SIZE_BITMASK] - buffer[(i - radius1) & BUFFER_SIZE_BITMASK];
+    }
+    else
+    {
+      dif -= 2 * buffer[i & BUFFER_SIZE_BITMASK];
     }
 
     if (i < length) {
       int value = data[offsetSource];
       offsetSource += stride;
-      buffer[(i + radius1) & 1023] = value;
+      buffer[(i + radius1) & BUFFER_SIZE_BITMASK] = value;
       sum += dif += value;
     } else {
-      buffer[(i + radius1) & 1023] = 0;
-      sum += dif;
+      int value = data[lastOffsetSource];
+      buffer[(i + radius1) & BUFFER_SIZE_BITMASK] = value;
+      sum += dif += value;
     }
   }
 }
