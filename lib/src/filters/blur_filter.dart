@@ -98,35 +98,38 @@ class BlurFilter extends BitmapFilter {
         ? bitmapData.renderTextureQuad
         : bitmapData.renderTextureQuad.cut(rectangle);
 
-    ImageData imageData = renderTextureQuad.getImageData();
-    List<int> data = imageData.data;
-    int width = ensureInt(imageData.width);
-    int height = ensureInt(imageData.height);
+    for ( int i = 0; i < quality; ++i )
+    {
+      ImageData imageData = renderTextureQuad.getImageData();
+      List<int> data = imageData.data;
+      int width = ensureInt(imageData.width);
+      int height = ensureInt(imageData.height);
 
-    num pixelRatio = renderTextureQuad.pixelRatio;
-    int blurX = (this.blurX * pixelRatio).round();
-    int blurY = (this.blurY * pixelRatio).round();
-    int stride = width * 4;
+      num pixelRatio = renderTextureQuad.pixelRatio;
+      int blurX = (this.blurX * pixelRatio).round();
+      int blurY = (this.blurY * pixelRatio).round();
+      int stride = width * 4;
 
-    premultiplyAlpha(data);
+      premultiplyAlpha(data);
 
-    for (int x = 0; x < width; x++) {
-      blur(data, x * 4 + 0, height, stride, blurY);
-      blur(data, x * 4 + 1, height, stride, blurY);
-      blur(data, x * 4 + 2, height, stride, blurY);
-      blur(data, x * 4 + 3, height, stride, blurY);
+      for (int x = 0; x < width; x++) {
+        blur(data, x * 4 + 0, height, stride, blurY);
+        blur(data, x * 4 + 1, height, stride, blurY);
+        blur(data, x * 4 + 2, height, stride, blurY);
+        blur(data, x * 4 + 3, height, stride, blurY);
+      }
+
+      for (int y = 0; y < height; y++) {
+        blur(data, y * stride + 0, width, 4, blurX);
+        blur(data, y * stride + 1, width, 4, blurX);
+        blur(data, y * stride + 2, width, 4, blurX);
+        blur(data, y * stride + 3, width, 4, blurX);
+      }
+
+      unpremultiplyAlpha(data);
+
+      renderTextureQuad.putImageData(imageData);
     }
-
-    for (int y = 0; y < height; y++) {
-      blur(data, y * stride + 0, width, 4, blurX);
-      blur(data, y * stride + 1, width, 4, blurX);
-      blur(data, y * stride + 2, width, 4, blurX);
-      blur(data, y * stride + 3, width, 4, blurX);
-    }
-
-    unpremultiplyAlpha(data);
-
-    renderTextureQuad.putImageData(imageData);
   }
 
   //---------------------------------------------------------------------------
