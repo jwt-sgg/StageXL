@@ -194,15 +194,20 @@ class BevelFilter extends BitmapFilter {
 
     shiftAndClampInvertChannel(data, 3, width, height, shiftX, shiftY);
 
-    for (int x = 0; x < width; x++) {
-      blur(data, x * 4 + alphaChannel, height, stride, blurY);
+    for ( int i = 0; i < quality; ++i )
+    {
+      for (int x = 0; x < width; x++)
+      {
+        blur(data, x * 4 + alphaChannel, height, stride, blurY);
+      }
+
+      for (int y = 0; y < height; y++)
+      {
+        blur(data, y * stride + alphaChannel, width, 4, blurX);
+      }
     }
 
-    for (int y = 0; y < height; y++) {
-      blur(data, y * stride + alphaChannel, width, 4, blurX);
-    }
-
-    setColorBlendDst(data, color, sourceImageData.data);
+    setColorBlendDstStrength(data, color, sourceImageData.data, strength.floor());
 
     renderTextureQuad.putImageData(imageData);
   }
@@ -233,7 +238,7 @@ class BevelFilter extends BitmapFilter {
       renderContext.activateRenderTexture(renderTexture);
 
       renderProgram.configure(
-          strength,
+          1.0,
           color | 0xFF000000,
           1.0,
           pixelRatioDistance * cos(angle) / renderTexture.width,
@@ -279,7 +284,7 @@ class BevelFilter extends BitmapFilter {
       renderContext.activateRenderTexture(renderTexture);
 
       renderProgram.configure(
-          strength,
+          1.0,
           color | 0xFF000000,
           1.0,
           0.0,

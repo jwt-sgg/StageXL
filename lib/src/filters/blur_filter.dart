@@ -98,8 +98,6 @@ class BlurFilter extends BitmapFilter {
         ? bitmapData.renderTextureQuad
         : bitmapData.renderTextureQuad.cut(rectangle);
 
-    for ( int i = 0; i < quality; ++i )
-    {
       ImageData imageData = renderTextureQuad.getImageData();
       List<int> data = imageData.data;
       int width = ensureInt(imageData.width);
@@ -112,24 +110,28 @@ class BlurFilter extends BitmapFilter {
 
       premultiplyAlpha(data);
 
-      for (int x = 0; x < width; x++) {
+    for ( int i = 0; i < quality; ++i )
+    {
+      for (int x = 0; x < width; x++)
+      {
         blur(data, x * 4 + 0, height, stride, blurY);
         blur(data, x * 4 + 1, height, stride, blurY);
         blur(data, x * 4 + 2, height, stride, blurY);
         blur(data, x * 4 + 3, height, stride, blurY);
       }
 
-      for (int y = 0; y < height; y++) {
+      for (int y = 0; y < height; y++)
+      {
         blur(data, y * stride + 0, width, 4, blurX);
         blur(data, y * stride + 1, width, 4, blurX);
         blur(data, y * stride + 2, width, 4, blurX);
         blur(data, y * stride + 3, width, 4, blurX);
       }
+    }
 
       unpremultiplyAlpha(data);
 
       renderTextureQuad.putImageData(imageData);
-    }
   }
 
   //---------------------------------------------------------------------------

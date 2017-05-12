@@ -167,15 +167,20 @@ class InnerDropShadowFilter extends BitmapFilter {
 
     shiftAndInvertChannel(data, 3, width, height, shiftX, shiftY);
 
-    for (int x = 0; x < width; x++) {
-      blur(data, x * 4 + alphaChannel, height, stride, blurY);
+    for ( int i = 0; i < quality; ++i )
+    {
+      for (int x = 0; x < width; x++)
+      {
+        blur(data, x * 4 + alphaChannel, height, stride, blurY);
+      }
+
+      for (int y = 0; y < height; y++)
+      {
+        blur(data, y * stride + alphaChannel, width, 4, blurX);
+      }
     }
 
-    for (int y = 0; y < height; y++) {
-      blur(data, y * stride + alphaChannel, width, 4, blurX);
-    }
-
-    setColorBlendDst(data, this.color, sourceImageData.data);
+    setColorBlendDstStrength(data, this.color, sourceImageData.data, strength.floor());
 
     renderTextureQuad.putImageData(imageData);
 
@@ -204,7 +209,7 @@ class InnerDropShadowFilter extends BitmapFilter {
       renderContext.activateRenderTexture(renderTexture);
 
       renderProgram.configure(
-          strength,
+          1.0,
           this.color | 0xFF000000,
           1.0,
           pixelRatioDistance * cos(angle) / renderTexture.width,
@@ -250,7 +255,7 @@ class InnerDropShadowFilter extends BitmapFilter {
       renderContext.activateRenderTexture(renderTexture);
 
       renderProgram.configure(
-          strength,
+          1.0,
           this.color | 0xFF000000,
           1.0,
           0.0,

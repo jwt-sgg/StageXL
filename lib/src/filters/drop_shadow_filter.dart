@@ -166,25 +166,36 @@ class DropShadowFilter extends BitmapFilter {
     num pixelRatio = renderTextureQuad.pixelRatio;
     int blurX = (this.blurX * pixelRatio).round();
     int blurY = (this.blurY * pixelRatio).round();
-    int alphaChannel = BitmapDataChannel.getCanvasIndex(BitmapDataChannel.ALPHA);
+    int alphaChannel = BitmapDataChannel.getCanvasIndex(
+        BitmapDataChannel.ALPHA);
     int stride = width * 4;
 
     shiftChannel(data, 3, width, height, shiftX, shiftY);
 
-    for (int x = 0; x < width; x++) {
-      blur(data, x * 4 + alphaChannel, height, stride, blurY);
+    for ( int i = 0; i < quality; ++i )
+    {
+      for (int x = 0; x < width; x++)
+      {
+        blur(data, x * 4 + alphaChannel, height, stride, blurY);
+      }
+
+      for (int y = 0; y < height; y++)
+      {
+        blur(data, y * stride + alphaChannel, width, 4, blurX);
+      }
     }
 
-    for (int y = 0; y < height; y++) {
-      blur(data, y * stride + alphaChannel, width, 4, blurX);
+    if (this.knockout)
+    {
+      setColorKnockoutStrength(data, this.color, sourceImageData.data, strength.floor());
     }
-
-    if (this.knockout) {
-      setColorKnockout(data, this.color, sourceImageData.data);
-    } else if (this.hideObject) {
-      setColor(data, this.color);
-    } else {
-      setColorBlend(data, this.color, sourceImageData.data);
+    else if (this.hideObject)
+    {
+      setColorStrength( data, this.color, strength.floor() );
+    }
+    else
+    {
+      setColorBlendStrength(data, this.color, sourceImageData.data, strength.floor());
     }
 
     renderTextureQuad.putImageData(imageData);
@@ -217,6 +228,12 @@ class DropShadowFilter extends BitmapFilter {
 
       renderContext.activateRenderProgram(renderProgram);
       renderContext.activateRenderTexture(renderTexture);
+
+      num strength = 1.0;
+      if ( pass == passCount - 2 )
+      {
+        strength = this.strength;
+      }
 
       renderProgram.configure(
           strength,

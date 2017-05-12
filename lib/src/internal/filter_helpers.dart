@@ -261,6 +261,52 @@ void setColor(List<int> data, int color) {
 
 //-----------------------------------------------------------------------------------------------
 
+void setColorStrength(List<int> data, int color, int strength) {
+
+  if ( strength < 2 )
+  {
+    setColor(data, color);
+    return;
+  }
+
+  int rColor = colorGetR(color);
+  int gColor = colorGetG(color);
+  int bColor = colorGetB(color);
+  int aColor = colorGetA(color);
+  int invAlpha;
+  strength = strength >> 1;
+
+  if (env.isLittleEndianSystem) {
+    for(var i = 0; i <= data.length - 4; i += 4) {
+      data[i + 0] = rColor;
+      data[i + 1] = gColor;
+      data[i + 2] = bColor;
+      invAlpha = 65535 - (aColor * data[i + 3] | 0);
+      while( strength > 0 )
+      {
+        strength = strength >> 1;
+        invAlpha = (invAlpha * invAlpha | 0) >> 16;
+      }
+      data[i + 3] = (65535 - invAlpha) >> 8;
+    }
+  } else {
+    for(var i = 0; i <= data.length - 4; i += 4) {
+      invAlpha = 65535 - (aColor * data[i + 0] | 0);
+      while( strength > 0 )
+      {
+        strength = strength >> 1;
+        invAlpha = (invAlpha * invAlpha | 0) >> 16;
+      }
+      data[i + 0] = (65535 - invAlpha) >> 8;
+      data[i + 1] = bColor;
+      data[i + 2] = gColor;
+      data[i + 3] = rColor;
+    }
+  }
+}
+
+//-----------------------------------------------------------------------------------------------
+
 void blend(List<int> dstData, List<int> srcData) {
 
   if (dstData.length != srcData.length) return;
@@ -365,6 +411,75 @@ void setColorBlend(List<int> dstData, int color, List<int> srcData) {
 
 //-----------------------------------------------------------------------------------------------
 
+void setColorBlendStrength(List<int> dstData, int color, List<int> srcData, int strength) {
+
+  if ( strength < 2 )
+  {
+    setColorBlend(dstData, color, srcData);
+    return;
+  }
+  // optimized version for:
+  //   _setColor(data, this.color, this.alpha);
+  //   _blend(data, sourceImageData.data);
+
+  if (dstData.length != srcData.length) return;
+
+  int rColor = colorGetR(color);
+  int gColor = colorGetG(color);
+  int bColor = colorGetB(color);
+  int aColor = colorGetA(color);
+  int invAlpha;
+  strength = strength >> 1;
+
+  if (env.isLittleEndianSystem) {
+    for(int i = 0; i <= dstData.length - 4; i += 4) {
+      int srcA = srcData[i + 3];
+      int dstA = dstData[i + 3];
+      int srcAX = (srcA * 255);
+      int dstAX = (dstA * (255 - srcA) * aColor | 0) >> 8;
+      int outAX = (srcAX + dstAX);
+      if (outAX > 0) {
+        dstData[i + 0] = (srcData[i + 0] * srcAX + rColor * dstAX) ~/ outAX;
+        dstData[i + 1] = (srcData[i + 1] * srcAX + gColor * dstAX) ~/ outAX;
+        dstData[i + 2] = (srcData[i + 2] * srcAX + bColor * dstAX) ~/ outAX;
+        invAlpha = 65535 - outAX;
+        while( strength > 0 )
+        {
+          strength = strength >> 1;
+          invAlpha = (invAlpha * invAlpha | 0) >> 16;
+        }
+        data[i + 3] = (65535 - invAlpha) >> 8;
+      } else {
+        dstData[i + 3] = 0;
+      }
+    }
+  } else {
+    for(int i = 0; i <= dstData.length - 4; i += 4) {
+      int srcA = srcData[i + 0];
+      int dstA = dstData[i + 0];
+      int srcAX = (srcA * 255);
+      int dstAX = (dstA * (255 - srcA) * aColor | 0) >> 8;
+      int outAX = (srcAX + dstAX);
+      if (outAX > 0) {
+        invAlpha = 65535 - outAX;
+        while( strength > 0 )
+        {
+          strength = strength >> 1;
+          invAlpha = (invAlpha * invAlpha | 0) >> 16;
+        }
+        data[i + 0] = (65535 - invAlpha) >> 8;
+        dstData[i + 1] = (srcData[i + 1] * srcAX + bColor * dstAX) ~/ outAX;
+        dstData[i + 2] = (srcData[i + 2] * srcAX + gColor * dstAX) ~/ outAX;
+        dstData[i + 3] = (srcData[i + 3] * srcAX + rColor * dstAX) ~/ outAX;
+      } else {
+        dstData[i + 0] = 0;
+      }
+    }
+  }
+}
+
+//-----------------------------------------------------------------------------------------------
+
 void setColorBlendDst(List<int> dstData, int color, List<int> srcData) {
 
   if (dstData.length != srcData.length) return;
@@ -409,6 +524,70 @@ void setColorBlendDst(List<int> dstData, int color, List<int> srcData) {
 
 //-----------------------------------------------------------------------------------------------
 
+void setColorBlendDstStrength(List<int> dstData, int color, List<int> srcData, int strength) {
+
+  if ( strength < 2 )
+  {
+    setColorBlendDst(dstData, color, srcData);
+    return;
+  }
+
+  if (dstData.length != srcData.length) return;
+
+  int rColor = colorGetR(color);
+  int gColor = colorGetG(color);
+  int bColor = colorGetB(color);
+  int aColor = colorGetA(color);
+  int invAlpha;
+  strength = strength >> 1;
+
+  if (env.isLittleEndianSystem) {
+    for(int i = 0; i <= dstData.length - 4; i += 4) {
+      int srcA = srcData[i + 3];
+      int dstA = dstData[i + 3];
+      invAlpha = 65535 - (dstA * aColor | 0);
+      while( strength > 0 )
+      {
+        strength = strength >> 1;
+        invAlpha = (invAlpha * invAlpha | 0) >> 16;
+      }
+      int dstAX = (65535 - invAlpha) >> 8;
+      int srcAX = (255 - dstAX);
+      if (srcA > 0) {
+        dstData[i + 0] = (srcData[i + 0] * srcAX + rColor * dstAX) ~/ 255;
+        dstData[i + 1] = (srcData[i + 1] * srcAX + gColor * dstAX) ~/ 255;
+        dstData[i + 2] = (srcData[i + 2] * srcAX + bColor * dstAX) ~/ 255;
+        dstData[i + 3] = srcA;
+      } else {
+        dstData[i + 3] = 0;
+      }
+    }
+  } else {
+    for(int i = 0; i <= dstData.length - 4; i += 4) {
+      int srcA = srcData[i + 0];
+      int dstA = dstData[i + 0];
+      invAlpha = 65535 - (dstA * aColor | 0);
+      while( strength > 0 )
+      {
+        strength = strength >> 1;
+        invAlpha = (invAlpha * invAlpha | 0) >> 16;
+      }
+      int dstAX = (65535 - invAlpha) >> 8;
+      int srcAX = (255 - dstAX);
+      if (srcA > 0) {
+        dstData[i + 0] = srcA;
+        dstData[i + 1] = (srcData[i + 1] * srcAX + bColor * dstAX) ~/ 255;
+        dstData[i + 2] = (srcData[i + 2] * srcAX + gColor * dstAX) ~/ 255;
+        dstData[i + 3] = (srcData[i + 3] * srcAX + rColor * dstAX) ~/ 255;
+      } else {
+        dstData[i + 0] = 0;
+      }
+    }
+  }
+}
+
+//-----------------------------------------------------------------------------------------------
+
 void setColorKnockout(List<int> dstData, int color, List<int> srcData) {
 
   // optimized version for:
@@ -438,3 +617,55 @@ void setColorKnockout(List<int> dstData, int color, List<int> srcData) {
     }
   }
 }
+
+//-----------------------------------------------------------------------------------------------
+
+void setColorKnockoutStrength(List<int> dstData, int color, List<int> srcData, int strength) {
+
+  if ( strength < 2 )
+  {
+    setColorKnockout(dstData, color, srcData);
+    return;
+  }
+  // optimized version for:
+  //   _setColor(data, this.color, this.alpha);
+  //   _knockout(data, sourceImageData.data);
+
+  if (dstData.length != srcData.length) return;
+
+  int rColor = colorGetR(color);
+  int gColor = colorGetG(color);
+  int bColor = colorGetB(color);
+  int aColor = colorGetA(color);
+  int invAlpha;
+  strength = strength >> 1;
+
+  if (env.isLittleEndianSystem) {
+    for(var i = 0; i <= dstData.length - 4; i += 4) {
+      dstData[i + 0] = rColor;
+      dstData[i + 1] = gColor;
+      dstData[i + 2] = bColor;
+      invAlpha = 65535 - ((aColor * dstData[i + 3] * (255 - srcData[i + 3]) | 0) >> 8 );
+      {
+        strength = strength >> 1;
+        invAlpha = (invAlpha * invAlpha | 0) >> 16;
+      }
+      dstData[i + 3] = (65535 - invAlpha) >> 8;
+    }
+  } else {
+    for(var i = 0; i <= dstData.length - 4; i += 4) {
+      invAlpha = 65535 - ((aColor * dstData[i + 0] * (255 - srcData[i + 0]) | 0) >> 8 );
+      {
+        strength = strength >> 1;
+        invAlpha = (invAlpha * invAlpha | 0) >> 16;
+      }
+      dstData[i + 0] = (65535 - invAlpha) >> 8;
+      dstData[i + 1] = bColor;
+      dstData[i + 2] = gColor;
+      dstData[i + 3] = rColor;
+    }
+  }
+}
+
+//-----------------------------------------------------------------------------------------------
+
