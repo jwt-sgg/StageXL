@@ -64,7 +64,7 @@ class Scale9Bitmap extends Bitmap {
   //---------------------------------------------------------------------------
 
   @override
-  Rectangle<num> get bounds {
+  Rectangle<num> get unfilteredBounds {
     return new Rectangle<num>(0.0, 0.0, _width, _height);
   }
 

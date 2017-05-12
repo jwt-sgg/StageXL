@@ -201,7 +201,7 @@ class FlipBook extends InteractiveObject implements Animatable {
   //---------------------------------------------------------------------------
 
   @override
-  Rectangle<num> get bounds {
+  Rectangle<num> get unfilteredBounds {
     var bitmapData = _bitmapDatas[_currentFrame];
     return new Rectangle<num>(0.0, 0.0, bitmapData.width, bitmapData.height);
   }

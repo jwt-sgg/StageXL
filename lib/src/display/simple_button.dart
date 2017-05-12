@@ -90,7 +90,7 @@ class SimpleButton extends InteractiveObject {
   //---------------------------------------------------------------------------
 
   @override
-  Rectangle<num> get bounds {
+  Rectangle<num> get unfilteredBounds {
     var displayObject = _getDisplayObject();
     return displayObject != null
         ? displayObject.boundsTransformed

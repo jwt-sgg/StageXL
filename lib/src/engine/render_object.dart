@@ -21,6 +21,7 @@ abstract class RenderObject {
   RenderTextureQuad get scrollRectRenderTextureQuad;
 
 
+  Rectangle<num> get unfilteredBounds;
   Rectangle<num> get bounds;
 
   void render(RenderState renderState);
@@ -76,10 +77,15 @@ class _RenderTextureQuadObject implements RenderObject {
         cache = null;
 
   @override
-  Rectangle<num> get bounds {
+  Rectangle<num> get unfilteredBounds {
     num w = renderTextureQuad.targetWidth;
     num h = renderTextureQuad.targetHeight;
     return new Rectangle<num>(0.0, 0.0, w, h);
+  }
+
+  @override
+  Rectangle<num> get bounds {
+    return unfilteredBounds;
   }
 
   @override

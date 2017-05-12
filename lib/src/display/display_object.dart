@@ -816,9 +816,30 @@ abstract class DisplayObject
   /// this display object's local coordinates.
 
   @override
-  Rectangle<num> get bounds {
+  Rectangle<num> get unfilteredBounds {
     if ( _scrollRect != null ) return _scrollRect.clone();
     return new Rectangle<num>(0.0, 0.0, 0.0, 0.0);
+  }
+
+  //----------------------------------------------------------------------------
+
+  /// Returns a rectangle that defines the area of this display object in
+  /// this display object's local coordinates.
+
+  @override
+  Rectangle<num> get bounds {
+    Rectangle<num> filteredBounds = this.unfilteredBounds;
+
+    for (int i = 0; i < this.filters.length; ++i)
+    {
+      Rectangle<num> overlap = filters[i].overlap;
+      filteredBounds.left += overlap.left;
+      filteredBounds.top += overlap.top;
+      filteredBounds.width += overlap.width;
+      filteredBounds.height += overlap.height;
+    }
+
+    return filteredBounds;
   }
 
   /// Returns a rectangle that defines the area of this display object in

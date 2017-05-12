@@ -141,7 +141,7 @@ class Mesh extends DisplayObject {
   //---------------------------------------------------------------------------
 
   @override
-  Rectangle<num> get bounds {
+  Rectangle<num> get unfilteredBounds {
 
     double left = double.INFINITY;
     double top = double.INFINITY;

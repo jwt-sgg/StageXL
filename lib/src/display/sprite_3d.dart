@@ -98,7 +98,7 @@ class Sprite3D extends DisplayObjectContainer3D implements Sprite {
   //----------------------------------------------------------------------------
 
   @override
-  Rectangle<num> get bounds {
+  Rectangle<num> get unfilteredBounds {
     var bounds = super.bounds;
     return _graphics == null ? bounds : bounds.boundingBox(_graphics.bounds);
   }

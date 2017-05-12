@@ -347,9 +347,9 @@ abstract class DisplayObjectContainer
   //----------------------------------------------------------------------------
 
   @override
-  Rectangle<num> get bounds {
+  Rectangle<num> get unfilteredBounds {
     if ( _scrollRect != null ) return _scrollRect.clone();
-    if (_children.length == 0) return super.bounds;
+    if (_children.length == 0) return super.unfilteredBounds;
 
     num left = double.INFINITY;
     num top = double.INFINITY;

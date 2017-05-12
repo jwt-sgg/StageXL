@@ -95,7 +95,7 @@ class Sprite extends DisplayObjectContainer {
   //----------------------------------------------------------------------------
 
   @override
-  Rectangle<num> get bounds {
+  Rectangle<num> get unfilteredBounds {
     if ( _scrollRect != null ) {
       return _scrollRect.clone();
     } else if (_graphics == null) {

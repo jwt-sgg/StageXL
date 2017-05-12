@@ -18,7 +18,7 @@ class Shape extends DisplayObject {
   Graphics graphics = new Graphics();
 
   @override
-  Rectangle<num> get bounds {
+  Rectangle<num> get unfilteredBounds {
     if ( _scrollRect != null ) return _scrollRect.clone();
     return graphics != null ? graphics.bounds : super.bounds;
   }

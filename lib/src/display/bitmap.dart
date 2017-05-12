@@ -36,7 +36,7 @@ class Bitmap extends DisplayObject {
   //---------------------------------------------------------------------------
 
   @override
-  Rectangle<num> get bounds {
+  Rectangle<num> get unfilteredBounds {
     if ( _scrollRect != null ) return _scrollRect.clone();
     return bitmapData == null
         ? new Rectangle<num>(0.0, 0.0, 0.0, 0.0)

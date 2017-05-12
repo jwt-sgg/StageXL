@@ -47,7 +47,7 @@ class Gauge extends DisplayObject {
   //---------------------------------------------------------------------------
 
   @override
-  Rectangle<num> get bounds {
+  Rectangle<num> get unfilteredBounds {
     return bitmapData == null
         ? new Rectangle<num>(0.0, 0.0, 0.0, 0.0)
         : new Rectangle<num>(0.0, 0.0, bitmapData.width, bitmapData.height);

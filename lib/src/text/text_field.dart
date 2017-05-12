@@ -255,7 +255,7 @@ class TextField extends InteractiveObject {
   //-------------------------------------------------------------------------------------------------
 
   @override
-  Rectangle<num> get bounds {
+  Rectangle<num> get unfilteredBounds {
     if ( this.isScrollRectSet ) return this.scrollRect;
     return new Rectangle<num>(0.0, 0.0, width, height);
   }

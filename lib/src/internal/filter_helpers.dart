@@ -448,7 +448,7 @@ void setColorBlendStrength(List<int> dstData, int color, List<int> srcData, int 
           strength = strength >> 1;
           invAlpha = (invAlpha * invAlpha | 0) >> 16;
         }
-        data[i + 3] = (65535 - invAlpha) >> 8;
+        dstData[i + 3] = (65535 - invAlpha) >> 8;
       } else {
         dstData[i + 3] = 0;
       }
@@ -467,7 +467,7 @@ void setColorBlendStrength(List<int> dstData, int color, List<int> srcData, int 
           strength = strength >> 1;
           invAlpha = (invAlpha * invAlpha | 0) >> 16;
         }
-        data[i + 0] = (65535 - invAlpha) >> 8;
+        dstData[i + 0] = (65535 - invAlpha) >> 8;
         dstData[i + 1] = (srcData[i + 1] * srcAX + bColor * dstAX) ~/ outAX;
         dstData[i + 2] = (srcData[i + 2] * srcAX + gColor * dstAX) ~/ outAX;
         dstData[i + 3] = (srcData[i + 3] * srcAX + rColor * dstAX) ~/ outAX;
