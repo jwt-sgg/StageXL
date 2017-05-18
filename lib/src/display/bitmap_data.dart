@@ -237,6 +237,18 @@ class BitmapData implements BitmapDrawable {
     return updateBatch.getPixel32(x, y);
   }
 
+  /// Get a single RGBA pixel
+
+  int   getSinglePixel(num x, num y)
+  {
+    return renderTextureQuad.getPixel(x,y);
+  }
+
+  int   getSinglePixelAlpha(num x, num y)
+  {
+    return renderTextureQuad.getPixelAlpha(x,y);
+  }
+
   /// Draw an RGB pixel at the given coordinates.
   ///
   /// setPixel updates the underlying texture. If you need to make multiple calls,

@@ -817,7 +817,7 @@ abstract class DisplayObject
 
   @override
   Rectangle<num> get unfilteredBounds {
-    if ( _scrollRect != null ) return _scrollRect.clone();
+    if ( _scrollRect != null ) return new Rectangle<num>(0.0, 0.0, _scrollRect.width, _scrollRect.height);
     return new Rectangle<num>(0.0, 0.0, 0.0, 0.0);
   }
 

@@ -342,4 +342,17 @@ class RenderTextureQuad {
     context.putImageData(imageData, rect.left, rect.top);
   }
 
+  int getPixel(num x, num y)
+  {
+    ImageData pixel = renderTexture.canvas.context2D.getImageData(sourceRectangle.left+x, sourceRectangle.top+y, 1, 1);
+    int pixel32 = (pixel.data[3] << 24) + (pixel.data[0] << 16) + (pixel.data[1] << 8) + pixel.data[2];
+    return pixel32;
+  }
+
+  int getPixelAlpha(num x, num y)
+  {
+    ImageData pixel = renderTexture.canvas.context2D.getImageData( sourceRectangle.left + x, sourceRectangle.top + y, 1, 1 );
+    return pixel.data[3];
+  }
+
 }

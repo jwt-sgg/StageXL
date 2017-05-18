@@ -22,6 +22,7 @@ class Bitmap extends DisplayObject {
 
   /// The BitmapData object being referenced.
   BitmapData _bitmapData;
+  int         hitTestAlpha = 1;
 
   RenderTextureQuad _scrollRectRenderTextureQuad;
 
@@ -37,7 +38,7 @@ class Bitmap extends DisplayObject {
 
   @override
   Rectangle<num> get unfilteredBounds {
-    if ( _scrollRect != null ) return _scrollRect.clone();
+    if ( _scrollRect != null ) return new Rectangle<num>(0.0, 0.0, _scrollRect.width, _scrollRect.height);
     return bitmapData == null
         ? new Rectangle<num>(0.0, 0.0, 0.0, 0.0)
         : new Rectangle<num>(0.0, 0.0, bitmapData.width, bitmapData.height);
@@ -54,6 +55,8 @@ class Bitmap extends DisplayObject {
     }
     if (localX < 0.0 || localX >= bitmapData.width) return null;
     if (localY < 0.0 || localY >= bitmapData.height) return null;
+    if ( hitTestAlpha > _bitmapData.getSinglePixelAlpha(localX, localY) ) return null;
+
     return this;
   }
 

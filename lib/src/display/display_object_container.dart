@@ -348,7 +348,7 @@ abstract class DisplayObjectContainer
 
   @override
   Rectangle<num> get unfilteredBounds {
-    if ( _scrollRect != null ) return _scrollRect.clone();
+    if ( _scrollRect != null ) return new Rectangle<num>(0.0, 0.0, _scrollRect.width, _scrollRect.height);
     if (_children.length == 0) return super.unfilteredBounds;
 
     num left = double.INFINITY;

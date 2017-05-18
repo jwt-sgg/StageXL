@@ -585,6 +585,10 @@ class Stage extends DisplayObjectContainer {
     _drags.forEach((d) => d.update(0, stagePoint));
 
     if (event.type != "mouseout") {
+      if (event.type == "mousedown") {
+        target = hitTestInput(stagePoint.x, stagePoint.y) as InteractiveObject;
+      }
+      else
       target = hitTestInput(stagePoint.x, stagePoint.y) as InteractiveObject;
     } else {
       this.dispatchEvent(new Event(Event.MOUSE_LEAVE));
