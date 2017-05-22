@@ -146,6 +146,8 @@ class GraphicsPattern {
 
   RenderTexture get patternTexture {
 
+    if ( _renderTextureQuad == null ) return null;
+
     // try to get the patternTexture from the texture cache
     if (_patternTexture == null && _renderTextureQuad != null) {
       _patternTexture = _patternTextureCache.getObject(_renderTextureQuad);
