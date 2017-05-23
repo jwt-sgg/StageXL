@@ -274,7 +274,7 @@ void setColorStrength(List<int> data, int color, int strength) {
   int bColor = colorGetB(color);
   int aColor = colorGetA(color);
   int invAlpha;
-  strength = strength >> 1;
+  --strength;
 
   if (env.isLittleEndianSystem) {
     for(var i = 0; i <= data.length - 4; i += 4) {
@@ -284,7 +284,7 @@ void setColorStrength(List<int> data, int color, int strength) {
       invAlpha = 65535 - (aColor * data[i + 3] | 0);
       while( strength > 0 )
       {
-        strength = strength >> 1;
+        --strength;
         invAlpha = (invAlpha * invAlpha | 0) >> 16;
       }
       data[i + 3] = (65535 - invAlpha) >> 8;
@@ -294,7 +294,7 @@ void setColorStrength(List<int> data, int color, int strength) {
       invAlpha = 65535 - (aColor * data[i + 0] | 0);
       while( strength > 0 )
       {
-        strength = strength >> 1;
+        --strength;
         invAlpha = (invAlpha * invAlpha | 0) >> 16;
       }
       data[i + 0] = (65535 - invAlpha) >> 8;
@@ -429,7 +429,7 @@ void setColorBlendStrength(List<int> dstData, int color, List<int> srcData, int 
   int bColor = colorGetB(color);
   int aColor = colorGetA(color);
   int invAlpha;
-  strength = strength >> 1;
+  --strength;
 
   if (env.isLittleEndianSystem) {
     for(int i = 0; i <= dstData.length - 4; i += 4) {
@@ -445,7 +445,7 @@ void setColorBlendStrength(List<int> dstData, int color, List<int> srcData, int 
         invAlpha = 65535 - outAX;
         while( strength > 0 )
         {
-          strength = strength >> 1;
+          --strength;
           invAlpha = (invAlpha * invAlpha | 0) >> 16;
         }
         dstData[i + 3] = (65535 - invAlpha) >> 8;
@@ -464,7 +464,7 @@ void setColorBlendStrength(List<int> dstData, int color, List<int> srcData, int 
         invAlpha = 65535 - outAX;
         while( strength > 0 )
         {
-          strength = strength >> 1;
+          --strength;
           invAlpha = (invAlpha * invAlpha | 0) >> 16;
         }
         dstData[i + 0] = (65535 - invAlpha) >> 8;
@@ -539,7 +539,7 @@ void setColorBlendDstStrength(List<int> dstData, int color, List<int> srcData, i
   int bColor = colorGetB(color);
   int aColor = colorGetA(color);
   int invAlpha;
-  strength = strength >> 1;
+  --strength;
 
   if (env.isLittleEndianSystem) {
     for(int i = 0; i <= dstData.length - 4; i += 4) {
@@ -548,7 +548,7 @@ void setColorBlendDstStrength(List<int> dstData, int color, List<int> srcData, i
       invAlpha = 65535 - (dstA * aColor | 0);
       while( strength > 0 )
       {
-        strength = strength >> 1;
+        --strength;
         invAlpha = (invAlpha * invAlpha | 0) >> 16;
       }
       int dstAX = (65535 - invAlpha) >> 8;
@@ -569,7 +569,7 @@ void setColorBlendDstStrength(List<int> dstData, int color, List<int> srcData, i
       invAlpha = 65535 - (dstA * aColor | 0);
       while( strength > 0 )
       {
-        strength = strength >> 1;
+        --strength;
         invAlpha = (invAlpha * invAlpha | 0) >> 16;
       }
       int dstAX = (65535 - invAlpha) >> 8;
@@ -638,7 +638,7 @@ void setColorKnockoutStrength(List<int> dstData, int color, List<int> srcData, i
   int bColor = colorGetB(color);
   int aColor = colorGetA(color);
   int invAlpha;
-  strength = strength >> 1;
+  --strength;
 
   if (env.isLittleEndianSystem) {
     for(var i = 0; i <= dstData.length - 4; i += 4) {
@@ -646,8 +646,9 @@ void setColorKnockoutStrength(List<int> dstData, int color, List<int> srcData, i
       dstData[i + 1] = gColor;
       dstData[i + 2] = bColor;
       invAlpha = 65535 - ((aColor * dstData[i + 3] * (255 - srcData[i + 3]) | 0) >> 8 );
+      while( strength > 0 )
       {
-        strength = strength >> 1;
+        --strength;
         invAlpha = (invAlpha * invAlpha | 0) >> 16;
       }
       dstData[i + 3] = (65535 - invAlpha) >> 8;
@@ -655,8 +656,9 @@ void setColorKnockoutStrength(List<int> dstData, int color, List<int> srcData, i
   } else {
     for(var i = 0; i <= dstData.length - 4; i += 4) {
       invAlpha = 65535 - ((aColor * dstData[i + 0] * (255 - srcData[i + 0]) | 0) >> 8 );
+      while( strength > 0 )
       {
-        strength = strength >> 1;
+        --strength;
         invAlpha = (invAlpha * invAlpha | 0) >> 16;
       }
       dstData[i + 0] = (65535 - invAlpha) >> 8;
