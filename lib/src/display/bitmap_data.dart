@@ -62,6 +62,16 @@ class BitmapData implements BitmapDrawable {
     return new BitmapData.fromRenderTextureQuad(renderTextureQuad);
   }
 
+  factory BitmapData.fromGradient(List<GraphicsGradientColorStop> colorStops, num width, num height, [num pixelRatio = 1.0])
+  {
+    var canvas = new CanvasElement(width: width, height: height);
+    var canvasGradient = canvas.context2D.createLinearGradient(0, 0, 0, height);
+    colorStops.forEach((cs) => canvasGradient.addColorStop(cs.offset, color2rgba(cs.color)));
+    canvas.context2D.fillStyle = canvasGradient;
+    canvas.context2D.fillRect(0, 0, width, height);
+    return new BitmapData.fromCanvasElement(canvas,pixelRatio);
+  }
+
   //----------------------------------------------------------------------------
 
   /// Loads a BitmapData from the given url.
