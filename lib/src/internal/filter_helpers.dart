@@ -125,6 +125,7 @@ void shiftAndInvertChannel(List<int> data, int channel, int width, int height, i
   if (shiftX == 0 && shiftY == 0)
   {// no shifting, just invert
     for( int src = channel; src < data.length; src += 4) data[src] = 255 - data[src];
+    return;
   }
 
   if (shiftX.abs() >= width || shiftY.abs() >= height) {
