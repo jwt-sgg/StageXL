@@ -122,7 +122,10 @@ void shiftAndInvertChannel(List<int> data, int channel, int width, int height, i
 
   if (channel < 0) throw new ArgumentError();
   if (channel > 3) throw new ArgumentError();
-  if (shiftX == 0 && shiftY == 0) return;
+  if (shiftX == 0 && shiftY == 0)
+  {// no shifting, just invert
+    for( int src = channel; src < data.length; src += 4) data[src] = 255 - data[src];
+  }
 
   if (shiftX.abs() >= width || shiftY.abs() >= height) {
     setChannel(data, channel, width * height,255);
