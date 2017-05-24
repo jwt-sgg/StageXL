@@ -1084,6 +1084,10 @@ abstract class DisplayObject
     if (_cache != null) _cache.dispose();
   }
 
+  BitmapData removeCacheAndReturnBitmapData() {
+    if (_cache != null) return _cache.releaseBitmapData();
+  }
+
   bool get hasCache
   {
     return (_cache != null) && (_cache.renderTextureQuad != null);

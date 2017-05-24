@@ -21,6 +21,18 @@ class _DisplayObjectCache {
     renderTextureQuad = null;
   }
 
+  BitmapData releaseBitmapData()
+  {
+    BitmapData data;
+    if (renderTextureQuad != null)
+    {
+      data = new BitmapData.fromRenderTextureQuad(renderTextureQuad);
+    }
+    renderTexture = null;
+    renderTextureQuad = null;
+    return data;
+  }
+
   //---------------------------------------------------------------------------
 
   void update() {
