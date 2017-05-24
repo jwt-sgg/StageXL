@@ -355,15 +355,22 @@ abstract class DisplayObjectContainer
     num top = double.INFINITY;
     num right = double.NEGATIVE_INFINITY;
     num bottom = double.NEGATIVE_INFINITY;
+    bool atLeastOneVisibleChildExists = false;
 
     for (int i = 0; i < _children.length; i++) {
-      var rectangle = _children[i].boundsTransformed;
+      if ( _children[i].visible && !_children[i].off )
+      {
+        atLeastOneVisibleChildExists = true;
+        var rectangle = _children[i].boundsTransformed;
 
-      if (rectangle.left < left) left = rectangle.left;
-      if (rectangle.top < top) top = rectangle.top;
-      if (rectangle.right > right) right = rectangle.right;
-      if (rectangle.bottom > bottom) bottom = rectangle.bottom;
+        if( rectangle.left < left ) left = rectangle.left;
+        if( rectangle.top < top ) top = rectangle.top;
+        if( rectangle.right > right ) right = rectangle.right;
+        if( rectangle.bottom > bottom ) bottom = rectangle.bottom;
+      }
     }
+
+    if ( !atLeastOneVisibleChildExists ) return super.unfilteredBounds;
 
     return new Rectangle<num>(left, top, right - left, bottom - top);
   }
