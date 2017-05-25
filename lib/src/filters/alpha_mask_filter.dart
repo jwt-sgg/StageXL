@@ -9,11 +9,11 @@ import '../geom.dart';
 
 class AlphaMaskFilter extends BitmapFilter {
 
-  final BitmapData bitmapData;
-  final Matrix matrix;
+  BitmapData bitmapData;
+  Matrix matrix;
 
   AlphaMaskFilter(this.bitmapData, [Matrix matrix = null]):
-    matrix = matrix != null ? matrix : new Matrix.fromIdentity();
+        matrix = matrix != null ? matrix : new Matrix.fromIdentity();
 
   @override
   BitmapFilter clone() => new AlphaMaskFilter(bitmapData, matrix.clone());
@@ -22,10 +22,11 @@ class AlphaMaskFilter extends BitmapFilter {
 
   @override
   void apply(BitmapData bitmapData, [Rectangle<num> rectangle]) {
+    if( this.bitmapData == null ) return;
 
     RenderTextureQuad renderTextureQuad = rectangle == null
-        ? bitmapData.renderTextureQuad
-        : bitmapData.renderTextureQuad.cut(rectangle);
+                                          ? bitmapData.renderTextureQuad
+                                          : bitmapData.renderTextureQuad.cut(rectangle);
 
     Matrix matrix = renderTextureQuad.drawMatrix;
     Float32List vxList = renderTextureQuad.vxList;
@@ -40,7 +41,9 @@ class AlphaMaskFilter extends BitmapFilter {
     context.rect(vxList[0], vxList[1], vxList[8] - vxList[0], vxList[9] - vxList[1]);
     context.clip();
     renderState.globalMatrix.prepend(this.matrix);
-    renderState.renderTextureQuad(this.bitmapData.renderTextureQuad);
+
+    RenderTextureQuad quad = this.bitmapData.renderTextureQuad;
+    renderState.renderTextureQuad(quad);
     context.restore();
   }
 
@@ -48,6 +51,7 @@ class AlphaMaskFilter extends BitmapFilter {
 
   @override
   void renderFilter(RenderState renderState, RenderTextureQuad renderTextureQuad, int pass) {
+    if( this.bitmapData == null ) return;
 
     var renderContext = renderState.renderContext as RenderContextWebGL;
     RenderTexture renderTexture = renderTextureQuad.renderTexture;
