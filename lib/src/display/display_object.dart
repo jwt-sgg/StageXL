@@ -799,10 +799,6 @@ abstract class DisplayObject
 
   set scrollRect(Rectangle<num> rect) {
     if ( rect == null ) {
-      if ( name=="checkmate")
-        {
-          int g = 6;
-        }
       _scrollRect = null;
       _scrollRectMask = null;
     } else {
