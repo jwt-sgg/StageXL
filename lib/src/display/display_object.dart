@@ -882,7 +882,7 @@ abstract class DisplayObject
 
   @override
   Rectangle<num> get layoutBounds {
-    return this.bounds;
+    return this.unfilteredBounds;
   }
 
   /// Returns a rectangle that defines the layout area of this display object in
