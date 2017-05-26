@@ -393,6 +393,7 @@ abstract class DisplayObjectContainer
 
     for (int i = _children.length - 1; i >= 0; i--) {
       var child = _children[i];
+      if ( child.mouseIgnore ) continue;
       var mask = child.mask;
       var matrix = child.transformationMatrix;
 

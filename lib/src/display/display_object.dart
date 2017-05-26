@@ -48,6 +48,7 @@ abstract class DisplayObject
   num _alpha = 1.0;
   bool _visible = true;
   bool _off = false;
+  bool _mouseIgnore = false;
 
   Rectangle<num> _scrollRect;
   Mask _scrollRectMask;
@@ -340,6 +341,16 @@ abstract class DisplayObject
   set off(bool value) {
     if (value is bool) _off = value;
   }
+
+
+  // mouseIgnore will stop inputHitTests from processing
+  bool get mouseIgnore => _mouseIgnore;
+
+  set mouseIgnore(bool value) {
+    if (value is bool) _mouseIgnore = value;
+  }
+
+
 
   /// The alpha transparency value of the object specified.
   ///
@@ -788,6 +799,10 @@ abstract class DisplayObject
 
   set scrollRect(Rectangle<num> rect) {
     if ( rect == null ) {
+      if ( name=="checkmate")
+        {
+          int g = 6;
+        }
       _scrollRect = null;
       _scrollRectMask = null;
     } else {
