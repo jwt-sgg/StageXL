@@ -65,7 +65,7 @@ class _GraphicsContextHitTest extends _GraphicsContextBase {
   @override
   void meshPattern(_GraphicsCommandMeshPattern command) {
     _GraphicsMesh mesh = command.mesh;
-    _hit = _hit || mesh.hitTest(_localX, _localY);
+    _hit = _hit || ( mesh.hitTest(_localX, _localY) && command.pattern.hitTest(_localX, _localY) );
   }
 
 }
