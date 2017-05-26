@@ -29,7 +29,7 @@ class _GraphicsContextHitTest extends _GraphicsContextBase {
   @override
   void fillPattern(GraphicsPattern pattern) {
     _GraphicsMesh mesh = _path;
-    _hit = _hit || mesh.hitTest(_localX, _localY);
+    _hit = _hit || ( mesh.hitTest(_localX, _localY) && pattern.hitTest(_localX, _localY) );
   }
 
   @override
@@ -47,7 +47,7 @@ class _GraphicsContextHitTest extends _GraphicsContextBase {
   @override
   void strokePattern(GraphicsPattern pattern, double width, JointStyle jointStyle, CapsStyle capsStyle) {
     _GraphicsMesh mesh = new _GraphicsStroke(_path, width, jointStyle, capsStyle);
-    _hit = _hit || mesh.hitTest(_localX, _localY);
+    _hit = _hit || ( mesh.hitTest(_localX, _localY) && pattern.hitTest(_localX, _localY) );
   }
 
   @override

@@ -62,6 +62,7 @@ class GraphicsPattern {
   RenderTextureQuad _renderTextureQuad;
   GraphicsPatternType _type;
   Matrix _matrix;
+  int         hitTestAlpha = 1;
 
   GraphicsPattern(
       RenderTextureQuad renderTextureQuad,
@@ -97,6 +98,20 @@ class GraphicsPattern {
 
   set matrix(Matrix value) {
     _matrix = value;
+  }
+
+  bool hitTest(num localX, num localY)
+  {
+    if ( _renderTextureQuad == null ) return false;
+    if ( _matrix != null )
+    {
+      num deltaX = localX - matrix.tx;
+      num deltaY = localY - matrix.ty;
+      localX = (matrix.d * deltaX - matrix.c * deltaY) / matrix.det;
+      localY = (matrix.a * deltaY - matrix.b * deltaX) / matrix.det;
+    }
+    if ( hitTestAlpha > renderTextureQuad.getPixelAlpha(localX, localY) ) return false;
+    return true;
   }
 
   RenderTextureQuad get renderTextureQuad {
