@@ -173,7 +173,7 @@ abstract class DisplayObjectContainer
     } else if (i1 < 0 || i1 >= length || i2 < 0 || i2 >= length) {
       throw new ArgumentError("The supplied index is out of bounds.");
     } else {
-      for (int i = i1; i <= i2; i++) {
+      for (int i = i2; i >= i1; --i)
         removeChildAt(i);
       }
     }
