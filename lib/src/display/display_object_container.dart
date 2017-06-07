@@ -174,6 +174,7 @@ abstract class DisplayObjectContainer
       throw new ArgumentError("The supplied index is out of bounds.");
     } else {
       for (int i = i2; i >= i1; --i)
+      {
         removeChildAt(i);
       }
     }
