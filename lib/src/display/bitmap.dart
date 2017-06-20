@@ -88,8 +88,9 @@ class Bitmap extends DisplayObject {
     } else {
       _scrollRect = rect.clone();
       if ( _scrollRectMask is _RectangleMask ){
-        _scrollRectMask.rectangle.width = _scrollRect.width;
-        _scrollRectMask.rectangle.height = _scrollRect.height;
+        _RectangleMask rectMask = _scrollRectMask;
+        rectMask.rectangle.width = _scrollRect.width;
+        rectMask.rectangle.height = _scrollRect.height;
       }
       else {
         _scrollRectMask = new Mask.rectangle(0, 0, _scrollRect.width, _scrollRect.height);

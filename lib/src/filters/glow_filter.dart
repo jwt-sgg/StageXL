@@ -42,7 +42,7 @@ class GlowFilter extends BitmapFilter {
 
   @override
   BitmapFilter clone() {
-    return new GlowFilter(color, blurX, blurY, quality, knockout,  hideObject);
+    return new GlowFilter(color, blurX, blurY, quality, strength, knockout,  hideObject);
   }
 
   @override

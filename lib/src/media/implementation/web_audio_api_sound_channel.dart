@@ -111,7 +111,7 @@ class WebAudioApiSoundChannel extends SoundChannel {
     if ( value is num && value > 0.0 ) {
       _playbackRate = value;
       if ( _sourceNode != null ) {
-        _sourceNode.playbackRate = _playbackRate;
+        _sourceNode.playbackRate.value = _playbackRate;
       }
     }
   }

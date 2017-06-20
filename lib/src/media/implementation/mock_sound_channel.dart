@@ -52,6 +52,12 @@ class MockSoundChannel extends SoundChannel {
   }
 
   @override
+  num get playbackRate => 1.0;
+
+  @override
+  set playbackRate(num value){}
+
+  @override
   SoundTransform get soundTransform {
     return _soundTransform;
   }

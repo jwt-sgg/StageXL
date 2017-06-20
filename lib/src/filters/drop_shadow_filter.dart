@@ -48,7 +48,7 @@ class DropShadowFilter extends BitmapFilter {
   @override
   BitmapFilter clone() {
     return new DropShadowFilter(
-      distance, angle, color, blurX, blurY, quality, knockout, hideObject);
+      distance, angle, color, blurX, blurY, quality, strength, knockout, hideObject);
   }
 
   @override

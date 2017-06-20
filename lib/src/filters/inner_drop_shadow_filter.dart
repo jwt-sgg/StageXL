@@ -3,6 +3,7 @@ library stagexl.filters.inner_drop_shadow;
 import 'dart:math' hide Point, Rectangle;
 import 'dart:html' show ImageData;
 
+import 'drop_shadow_filter.dart';
 import '../display.dart';
 import '../engine.dart';
 import '../geom.dart';

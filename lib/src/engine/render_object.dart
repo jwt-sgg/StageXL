@@ -61,13 +61,16 @@ class _RenderTextureQuadObject implements RenderObject {
   final RenderMask mask;
 
   @override
-  final Rectangle<num> scrollRect;
+  bool get isScrollRectSet => false;
 
   @override
-  final RenderMask scrollMask;
+  final Rectangle<num> scrollRect = null;
 
   @override
-  RenderTextureQuad get scrollRectRenderTextureQuad;
+  final RenderMask scrollMask = null;
+
+  @override
+  RenderTextureQuad get scrollRectRenderTextureQuad => null;
 
   @override
   final num alpha = 1.0;

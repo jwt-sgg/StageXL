@@ -179,7 +179,9 @@ abstract class DisplayObject
 
   /// a property that children won't override to always allow setting
   /// the position directly (used by layouts)
+  // ignore: non_constant_identifier_names
   num get x_ => _x;
+  // ignore: non_constant_identifier_names
   set x_(num value) {
     if (value is num) _x = value;
     _transformationMatrixRefresh = true;
@@ -203,7 +205,9 @@ abstract class DisplayObject
 
   /// a property that children won't override to always allow setting
   /// the position directly (used by layouts)
+  // ignore: non_constant_identifier_names
   num get y_ => _y;
+  // ignore: non_constant_identifier_names
   set y_(num value) {
     if (value is num) _y = value;
     _transformationMatrixRefresh = true;
@@ -784,6 +788,7 @@ abstract class DisplayObject
 
   /// determine if scrollRect has been set.  This allows the user to check
   /// for a valid scrollRect without needing to clone it
+  @override
   bool get isScrollRectSet {
     return _scrollRect != null;
   }
@@ -804,8 +809,9 @@ abstract class DisplayObject
     } else {
       _scrollRect = rect.clone();
       if ( _scrollRectMask is _RectangleMask ){
-        _scrollRectMask.rectangle.width = _scrollRect.width;
-        _scrollRectMask.rectangle.height = _scrollRect.height;
+        _RectangleMask rectMask = _scrollRectMask;
+        rectMask.rectangle.width = _scrollRect.width;
+        rectMask.rectangle.height = _scrollRect.height;
       }
       else {
         _scrollRectMask = new Mask.rectangle(0, 0, _scrollRect.width, _scrollRect.height);
@@ -880,7 +886,6 @@ abstract class DisplayObject
   /// Returns a rectangle that defines the layout area of this display object in
   /// this display object's local coordinates.
 
-  @override
   Rectangle<num> get layoutBounds {
     return this.unfilteredBounds;
   }
@@ -912,16 +917,16 @@ abstract class DisplayObject
   /// Aligns the display object's pivot point relative to the current bounds.
 
   void alignPivot([
-    HorizontalAlign hAlign = HorizontalAlign.Center,
-    VerticalAlign vAlign = VerticalAlign.Center]) {
+                    PivotHorizontalAlign hAlign = PivotHorizontalAlign.Center,
+                    PivotVerticalAlign vAlign = PivotVerticalAlign.Center]) {
 
     var b = this.layoutBounds;
-    if (hAlign == HorizontalAlign.Left) this.pivotX = b.left;
-    if (hAlign == HorizontalAlign.Center) this.pivotX = b.left + b.width / 2;
-    if (hAlign == HorizontalAlign.Right) this.pivotX = b.right;
-    if (vAlign == VerticalAlign.Top) this.pivotY = b.top;
-    if (vAlign == VerticalAlign.Center) this.pivotY = b.top + b.height / 2;
-    if (vAlign == VerticalAlign.Bottom) this.pivotY = b.bottom;
+    if (hAlign == PivotHorizontalAlign.Left) this.pivotX = b.left;
+    if (hAlign == PivotHorizontalAlign.Center) this.pivotX = b.left + b.width / 2;
+    if (hAlign == PivotHorizontalAlign.Right) this.pivotX = b.right;
+    if (vAlign == PivotVerticalAlign.Top) this.pivotY = b.top;
+    if (vAlign == PivotVerticalAlign.Center) this.pivotY = b.top + b.height / 2;
+    if (vAlign == PivotVerticalAlign.Bottom) this.pivotY = b.bottom;
   }
 
   //----------------------------------------------------------------------------
@@ -1097,6 +1102,7 @@ abstract class DisplayObject
 
   BitmapData removeCacheAndReturnBitmapData() {
     if (_cache != null) return _cache.releaseBitmapData();
+    return null;
   }
 
   bool get hasCache

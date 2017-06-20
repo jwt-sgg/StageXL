@@ -73,11 +73,9 @@ class Rectangle<T extends num> implements math.MutableRectangle<T> {
     height = value - top;
   }
 
-  @override
-  T get centerX => left + width/2;
+  T get centerX => left + width/2 as T;
 
-  @override
-  T get centerY => top + height/2;
+  T get centerY => top + height/2 as T;
 
   @override
   Point<T> get topLeft => new Point<T>(left, top);

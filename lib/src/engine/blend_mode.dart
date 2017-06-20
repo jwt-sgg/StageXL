@@ -13,6 +13,7 @@ BlendMode blendModeByName( String name )
     case "above":     return BlendMode.ABOVE;
     case "none":      return BlendMode.NONE;
   }
+  return BlendMode.NONE;
 }
 
 /// A class that provides constant values for visual blend mode effects.

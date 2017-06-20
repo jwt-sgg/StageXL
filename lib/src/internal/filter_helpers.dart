@@ -201,7 +201,6 @@ void blur(List<int> data, int offset, int length, int stride, int radius) {
   int offsetDestination = offset;
   int lastOffsetSource = offsetSource + ((length-1) * stride);
   int radius1 = radius * 1;
-  int radius2 = radius * 2;
 
   Int32List buffer = _buffer;
 

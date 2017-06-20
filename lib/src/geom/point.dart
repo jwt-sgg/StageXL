@@ -15,7 +15,7 @@ class Point<T extends num> implements math.Point<T> {
 
   Point(this.x, this.y);
 
-  Point.zero():x=0, y=0;
+  Point.zero():x=0 as T, y=0 as T;
 
   Point.from(math.Point<T> p) : this(p.x, p.y);
 
